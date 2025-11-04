@@ -77,7 +77,24 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         photoSettings.flashMode = requestedFlashMode
       }
 
-      if #available(iOS 16.0, *) {
+      if #available(iOS 17.0, *) {
+        if let req = options.maxPhotoDimensions {
+          // Try to match against supported list
+          let target = CMVideoDimensions(width: Int32(req.width), height: Int32(req.height))
+          if let match = photoOutput.supportedMaxPhotoDimensions.first(where: {
+            $0.width == target.width && $0.height == target.height
+          }) {
+            photoSettings.maxPhotoDimensions = match
+          } else {
+            // No match: fall back to output default (or omit to let iOS decide)
+            photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+          }
+        } else {
+          // No request: keep existing behavior (current default)
+          photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+        }
+      } else if #available(iOS 16.0, *) {
+        // iOS 16: no supported list to match; just use the output's default
         photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
       }
 
@@ -86,11 +103,8 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewFormat]
       }
 
-      if photoOutput.isHighResolutionCaptureEnabled {
-        photoSettings.isHighResolutionPhotoEnabled = true
-      }
-
-      photoSettings.photoQualityPrioritization = .balanced
+      photoSettings.isHighResolutionPhotoEnabled = true
+      photoSettings.photoQualityPrioritization = .quality
 
       photoOutput.capturePhoto(with: photoSettings, delegate: self)
     }
