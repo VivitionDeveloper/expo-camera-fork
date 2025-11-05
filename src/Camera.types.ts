@@ -496,7 +496,7 @@ export interface CameraViewRef {
   readonly takePictureRef?: (options: CameraPictureOptions) => Promise<PictureRef>;
   readonly getAvailablePictureSizes: () => Promise<string[]>;
   readonly getAvailableLenses: () => Promise<string[]>;
-  readonly getSupportedMaxPhotoDimensions?: () => Promise<MaxPhotoDimensions[]>;
+  readonly getSupportedMaxPhotoDimensions: () => Promise<MaxPhotoDimensions[]>;
   readonly record: (options?: CameraRecordingOptions) => Promise<{ uri: string }>;
   readonly toggleRecording: () => Promise<void>;
   readonly stopRecording: () => Promise<void>;
