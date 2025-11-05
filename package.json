@@ -12,6 +12,23 @@
     "package.json",
     "README.md"
   ],
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "modules": [
+          "ExpoCamera"
+        ]
+      },
+      "android": {
+        "modules": [
+          "expo.modules.camera.CameraPackage"
+        ]
+      }
+    },
+    "plugins": [
+      "./plugin/build/withCamera"
+    ]
+  },
   "sideEffects": false,
   "scripts": {
     "build": "tsc",
