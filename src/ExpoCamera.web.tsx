@@ -121,6 +121,10 @@ const ExponentCamera = ({
         console.warn('getAvailableLenses is not supported on web.');
         return [];
       },
+      async getSupportedMaxPhotoDimensions() {
+        console.warn('getSupportedMaxPhotoDimensions is not supported on web.');
+        return [];
+      },
     }),
     [native.mediaTrackSettings, props.onPictureSaved]
   );

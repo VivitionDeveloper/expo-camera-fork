@@ -89,6 +89,16 @@ export default class CameraView extends Component {
         return (await this._cameraRef.current?.getAvailableLenses()) ?? [];
     }
     /**
+     * Returns the available max photo dimensions for this os.
+     *
+     * @return Returns a Promise that resolves to an array of MaxPhotoDimensions objects representing the values that can be
+     *         passed to the `maxPhotoDimensions` property in `TakePictureOptions`.
+     * @platform ios
+     */
+    async getSupportedMaxPhotoDimensionsAsync() {
+        return (await this._cameraRef.current?.getSupportedMaxPhotoDimensions()) ?? [];
+    }
+    /**
      * Returns an object with the supported features of the camera on the current device.
      */
     getSupportedFeatures() {
