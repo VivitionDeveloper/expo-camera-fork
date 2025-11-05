@@ -24,10 +24,7 @@
           "expo.modules.camera.CameraPackage"
         ]
       }
-    },
-    "plugins": [
-      "./plugin/build/withCamera"
-    ]
+    }
   },
   "sideEffects": false,
   "scripts": {
