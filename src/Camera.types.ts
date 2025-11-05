@@ -12,6 +12,8 @@ import type { ViewProps } from 'react-native';
 import { AndroidBarcode } from './AndroidBarcode.types';
 import { PictureRef } from './PictureRef';
 
+export type MaxPhotoDimensions = { width: number; height: number };
+
 export type CameraType = 'front' | 'back';
 
 export type FlashMode = 'off' | 'on' | 'auto';
@@ -191,6 +193,10 @@ export type CameraPictureOptions = {
    * Whether the camera should return an image ref that can be used directly in the `Image` component.
    */
   pictureRef?: boolean;
+  /**
+   * What max dimensions shoud the picture have? Should be one of the dimensions returned by getSupportedMaxPhotoDimensions. 
+   */
+  maxPhotoDimensions?: MaxPhotoDimensions;
 };
 
 // @needsAudit
@@ -490,6 +496,7 @@ export interface CameraViewRef {
   readonly takePictureRef?: (options: CameraPictureOptions) => Promise<PictureRef>;
   readonly getAvailablePictureSizes: () => Promise<string[]>;
   readonly getAvailableLenses: () => Promise<string[]>;
+  readonly getSupportedMaxPhotoDimensions?: () => Promise<MaxPhotoDimensions[]>;
   readonly record: (options?: CameraRecordingOptions) => Promise<{ uri: string }>;
   readonly toggleRecording: () => Promise<void>;
   readonly stopRecording: () => Promise<void>;
