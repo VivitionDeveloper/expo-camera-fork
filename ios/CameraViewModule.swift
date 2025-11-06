@@ -11,19 +11,11 @@ struct ScannerContext {
   var delegate: Any?
 }
 
-private let _installCrashHook: Void = {
-  NSSetUncaughtExceptionHandler { ex in
-    print("[FATAL] Uncaught NSException:", ex.name.rawValue, ex.reason ?? "")
-    print(ex.callStackSymbols.joined(separator: "\n"))
-  }
-}
-
 public final class CameraViewModule: Module, ScannerResultHandler {
   private var scannerContext: ScannerContext?
 
   public func definition() -> ModuleDefinition {
-    _ = _installCrashHook
-    
+
     Name("ExpoCamera")
 
     Events("onModernBarcodeScanned")
@@ -37,6 +29,10 @@ public final class CameraViewModule: Module, ScannerResultHandler {
         ],
         withPermissionsManager: permissionsManager
       )
+      NSSetUncaughtExceptionHandler { ex in
+        NSLog("[FATAL][ExpoCamera] Uncaught NSException: \(ex.name.rawValue) \(ex.reason ?? "")")
+        NSLog(ex.callStackSymbols.joined(separator: "\n"))
+      }
     }
 
     Property("isModernBarcodeScannerAvailable") { () -> Bool in
