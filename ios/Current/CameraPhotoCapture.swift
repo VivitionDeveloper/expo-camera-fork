@@ -5,6 +5,7 @@ import ExpoModulesCore
 protocol CameraPhotoCaptureDelegate: AnyObject {
   var appContext: AppContext? { get }
   var previewLayer: AVCaptureVideoPreviewLayer { get }
+  var currentDevice: AVCaptureDevice? { get }
   var deviceOrientation: UIInterfaceOrientation { get }
   var responsiveWhenOrientationLocked: Bool { get }
   var physicalOrientation: UIDeviceOrientation { get }
@@ -78,10 +79,12 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       }
 
       if #available(iOS 17.0, *) {
-        if let req = options.maxPhotoDimensions {
+        if let req = options.maxPhotoDimensions,
+           let device = captureDelegate?.currentDevice {
           // Try to match against supported list
           let target = CMVideoDimensions(width: Int32(req.width), height: Int32(req.height))
-          if let match = photoOutput.supportedMaxPhotoDimensions.first(where: {
+          let supported = device.activeFormat.supportedMaxPhotoDimensions
+          if let match = supported.first(where: {
             $0.width == target.width && $0.height == target.height
           }) {
             photoSettings.maxPhotoDimensions = match

@@ -68,6 +68,27 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     }
   }
 
+  var currentDevice: AVCaptureDevice? {
+    return self.sessionManager.currentDevice
+  }
+
+  /// Returns supported max photo dimensions for current active camera format.
+  /// If the output/device isn't ready or iOS doesn't expose the API, returns an empty array.
+  func getSupportedMaxPhotoDimensions() -> [[String: Int]] {
+    guard
+      let device = self.currentDevice
+    else {
+      return []
+    }
+
+    if #available(iOS 17.0, *) {
+      let dims = device.activeFormat.supportedMaxPhotoDimensions
+      return dims.map { ["width": Int($0.width), "height": Int($0.height)] }
+    } else {
+      return []
+    }
+  }
+
   var flashMode = FlashMode.auto
 
   var torchEnabled = false {
@@ -351,25 +372,5 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
   deinit {
     photoCapture.cleanup()
     videoRecording.cleanup()
-  }
-}
-
-// MARK: - Supported max photo dimensions
-extension CameraView {
-  /// Returns supported max photo dimensions for current photo output.
-  /// If the output is not ready or iOS version doesn't expose the API, returns an empty array.
-  func getSupportedMaxPhotoDimensions() -> [[String: Int]] {
-    guard let photoOutput = sessionManager.currentPhotoOutput else {
-      return []
-    }
-    // `supportedMaxPhotoDimensions` is available on modern iOS versions.
-    if #available(iOS 17.0, *) {
-      return photoOutput.supportedMaxPhotoDimensions.map {
-        ["width": Int($0.width), "height": Int($0.height)]
-      }
-    } else {
-      // On older iOS, the API may not be available — return empty.
-      return []
-    }
   }
 }
