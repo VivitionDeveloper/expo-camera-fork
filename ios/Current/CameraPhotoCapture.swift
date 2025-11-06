@@ -42,6 +42,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
     let optionsCopy = options
     optionsCopy.pictureRef = false
 
+    print("takePicturePromise called")
     let result = try await takePicture(options: optionsCopy, photoOutput: photoOutput)
     if let result = result as? [String: Any] {
       return result
@@ -55,10 +56,12 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       throw CameraNotReadyException()
     }
 
+    print("takePicture called, 1")
     return try await withCheckedThrowingContinuation { continuation in
       photoCapturedContinuation = continuation
       photoCaptureOptions = options
 
+      print("takePicture called, 2")
       let connection = photoOutput.connection(with: .video)
       let orientation = captureDelegate?.responsiveWhenOrientationLocked == true ?
         captureDelegate?.physicalOrientation ?? .unknown : UIDevice.current.orientation
@@ -78,25 +81,31 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         photoSettings.flashMode = requestedFlashMode
       }
 
+      print("takePicture called, 3")
       if #available(iOS 17.0, *) {
         if let req = options.maxPhotoDimensions,
            let device = captureDelegate?.currentDevice {
+          print("takePicture called, 4")
           // Try to match against supported list
           let target = CMVideoDimensions(width: Int32(req.width), height: Int32(req.height))
           let supported = device.activeFormat.supportedMaxPhotoDimensions
           if let match = supported.first(where: {
             $0.width == target.width && $0.height == target.height
           }) {
+            print("takePicture called, 5")
             photoSettings.maxPhotoDimensions = match
           } else {
+            print("takePicture called, 6")
             // No match: fall back to output default (or omit to let iOS decide)
             photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
           }
         } else {
+          print("takePicture called, 7")
           // No request: keep existing behavior (current default)
           photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
         }
       } else if #available(iOS 16.0, *) {
+        print("takePicture called, 8")
         // iOS 16: no supported list to match; just use the output's default
         photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
       }
@@ -106,9 +115,11 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewFormat]
       }
 
+      print("takePicture called, 9")
       photoSettings.isHighResolutionPhotoEnabled = true
       photoSettings.photoQualityPrioritization = .quality
 
+      print("takePicture called, 10")
       photoOutput.capturePhoto(with: photoSettings, delegate: self)
     }
   }

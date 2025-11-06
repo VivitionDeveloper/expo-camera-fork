@@ -11,10 +11,19 @@ struct ScannerContext {
   var delegate: Any?
 }
 
+private let _installCrashHook: Void = {
+  NSSetUncaughtExceptionHandler { ex in
+    print("[FATAL] Uncaught NSException:", ex.name.rawValue, ex.reason ?? "")
+    print(ex.callStackSymbols.joined(separator: "\n"))
+  }
+}
+
 public final class CameraViewModule: Module, ScannerResultHandler {
   private var scannerContext: ScannerContext?
 
   public func definition() -> ModuleDefinition {
+    _ = _installCrashHook
+    
     Name("ExpoCamera")
 
     Events("onModernBarcodeScanned")
@@ -274,6 +283,7 @@ public final class CameraViewModule: Module, ScannerResultHandler {
         #else
         Task {
           do {
+            print("takePicture (async) called");
             let result = try await view.takePicturePromise(options: options)
             promise.resolve(result)
           } catch {
