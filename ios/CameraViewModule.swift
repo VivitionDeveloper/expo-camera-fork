@@ -279,7 +279,6 @@ public final class CameraViewModule: Module, ScannerResultHandler {
         #else
         Task {
           do {
-            print("takePicture (async) called");
             let result = try await view.takePicturePromise(options: options)
             promise.resolve(result)
           } catch {
