@@ -354,6 +354,44 @@ class CameraSessionManager: NSObject {
       delegate?.onCameraReady()
     }
     enableTorch()
+
+    if let device = self.currentDevice {
+      NSLog("[Camera] ==== AVAILABLE PHOTO FORMATS for \(device.localizedName) ====")
+
+      for (index, format) in device.formats.enumerated() {
+        let desc = format.formatDescription
+        let dims = CMVideoFormatDescriptionGetDimensions(desc)
+
+        // Only include video sensor formats — these determine the available photo modes
+        // (AVFoundation doesn't have a separate 'photo' media type)
+        if CMFormatDescriptionGetMediaType(desc) != kCMMediaType_Video {
+          continue
+        }
+
+        NSLog("[Camera] Format [\(index)]: %dx%d", dims.width, dims.height)
+
+        if #available(iOS 17.0, *) {
+          for dim in format.supportedMaxPhotoDimensions {
+            NSLog("    → supportedMaxPhotoDimensions: %dx%d", dim.width, dim.height)
+          }
+        }
+      }
+
+      if let active = device.activeFormat {
+        let dims = CMVideoFormatDescriptionGetDimensions(active.formatDescription)
+        NSLog("[Camera] ==== ACTIVE FORMAT ====")
+        NSLog("[Camera] Active format index: %d", device.formats.firstIndex(of: active) ?? -1)
+        NSLog("[Camera] Active format base size: %dx%d", dims.width, dims.height)
+        if #available(iOS 17.0, *) {
+          for dim in active.supportedMaxPhotoDimensions {
+            NSLog("    → activeFormat supportedMaxPhotoDimensions: %dx%d", dim.width, dim.height)
+          }
+        }
+      }
+
+      NSLog("[Camera] ===============================================")
+    }
+
 #endif
   }
 }
