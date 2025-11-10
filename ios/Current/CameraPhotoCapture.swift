@@ -88,6 +88,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
             $0.width == target.width && $0.height == target.height
           }) {
             photoSettings.maxPhotoDimensions = match
+            photoOutput.maxPhotoDimensions = match
             NSLog("Matched requested maxPhotoDimensions: \(match.width)x\(match.height)")
           } else {
             // No match: fall back to output default (or omit to let iOS decide)
