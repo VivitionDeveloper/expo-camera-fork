@@ -88,6 +88,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
             $0.width == target.width && $0.height == target.height
           }) {
             photoSettings.maxPhotoDimensions = match
+            NSLog("Matched requested maxPhotoDimensions: \(match.width)x\(match.height)")
           } else {
             // No match: fall back to output default (or omit to let iOS decide)
             photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
@@ -106,7 +107,9 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewFormat]
       }
 
-      photoSettings.isHighResolutionPhotoEnabled = true
+      if photoOutput.isHighResolutionCaptureEnabled {
+        photoSettings.isHighResolutionPhotoEnabled = true
+      }
       photoSettings.photoQualityPrioritization = photoOutput.maxPhotoQualityPrioritization
       
       photoOutput.capturePhoto(with: photoSettings, delegate: self)
