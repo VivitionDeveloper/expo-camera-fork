@@ -13,6 +13,8 @@ protocol CameraPhotoCaptureDelegate: AnyObject {
   var mirror: Bool { get }
   var flashMode: FlashMode { get }
   var onPictureSaved: EventDispatcher { get }
+
+  func logPhotoOutput(_ message: String, _ output: AVCapturePhotoOutput)
 }
 
 class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
@@ -55,7 +57,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       throw CameraNotReadyException()
     }
 
-    delegate.logPhotoOutput("TakePicture start", self.photoOutput)
+    captureDelegate.logPhotoOutput("TakePicture start", self.photoOutput)
     return try await withCheckedThrowingContinuation { continuation in
       photoCapturedContinuation = continuation
       photoCaptureOptions = options
@@ -90,7 +92,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
           }) {
             photoSettings.maxPhotoDimensions = match
             NSLog("[Camera] Matched requested maxPhotoDimensions (set in photoSettings): \(match.width)x\(match.height)")
-            delegate.logPhotoOutput("After setting maxPhotoDimensions", self.photoOutput)
+            captureDelegate.logPhotoOutput("After setting maxPhotoDimensions", self.photoOutput)
           } else {
             // No match: fall back to output default (or omit to let iOS decide)
             photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
