@@ -335,6 +335,15 @@ class CameraSessionManager: NSObject {
 
     let photoOutput = AVCapturePhotoOutput()
     photoOutput.isLivePhotoCaptureEnabled = false
+    if #available(iOS 17.0, *),
+      let device = currentDevice {
+      let supported = device.activeFormat.supportedMaxPhotoDimensions
+
+      if let maxDim = supported.max(by: { $0.width * $0.height < $1.width * $1.height }) {
+        photoOutput.maxPhotoDimensions = maxDim
+        NSLog("[Camera] Configured output.maxPhotoDimensions to \(maxDim.width)x\(maxDim.height)")
+      }
+    }
     session.beginConfiguration()
     if session.canAddOutput(photoOutput) {
       session.addOutput(photoOutput)
@@ -349,48 +358,11 @@ class CameraSessionManager: NSObject {
     addErrorNotification()
     delegate.changePreviewOrientation()
     delegate.barcodeScanner?.maybeStartBarcodeScanning()
-    updateCameraIsActive()
+    updateCameraIsActive() // starts the session
     DispatchQueue.main.async { [weak delegate] in
       delegate?.onCameraReady()
     }
     enableTorch()
-
-    if let device = self.currentDevice {
-      NSLog("[Camera] ==== AVAILABLE PHOTO FORMATS for \(device.localizedName) ====")
-
-      for (index, format) in device.formats.enumerated() {
-        let desc = format.formatDescription
-        let dims = CMVideoFormatDescriptionGetDimensions(desc)
-
-        // Only include video sensor formats — these determine the available photo modes
-        // (AVFoundation doesn't have a separate 'photo' media type)
-        if CMFormatDescriptionGetMediaType(desc) != kCMMediaType_Video {
-          continue
-        }
-
-        NSLog("[Camera] Format [\(index)]: %dx%d", dims.width, dims.height)
-
-        if #available(iOS 17.0, *) {
-          for dim in format.supportedMaxPhotoDimensions {
-            NSLog("    → supportedMaxPhotoDimensions: %dx%d", dim.width, dim.height)
-          }
-        }
-      }
-
-      let active = device.activeFormat
-      let activeDims = CMVideoFormatDescriptionGetDimensions(active.formatDescription)
-      NSLog("[Camera] ==== ACTIVE FORMAT ====")
-      NSLog("[Camera] Active format index: %d", device.formats.firstIndex(of: active) ?? -1)
-      NSLog("[Camera] Active format base size: %dx%d", activeDims.width, activeDims.height)
-      if #available(iOS 17.0, *) {
-        for dim in active.supportedMaxPhotoDimensions {
-          NSLog("    → activeFormat supportedMaxPhotoDimensions: %dx%d", dim.width, dim.height)
-        }
-      }
-
-      NSLog("[Camera] ===============================================")
-    }
-
 #endif
   }
 }
