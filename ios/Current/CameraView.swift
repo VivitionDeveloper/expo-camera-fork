@@ -204,10 +204,10 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     }
     let addr = Unmanaged.passUnretained(output).toOpaque()
     if #available(iOS 17.0, *) {
-      NSLog("[Camera] \(prefix): photoOutput=%p, maxPhotoDimensions=%dx%d",
-            addr, output.maxPhotoDimensions.width, output.maxPhotoDimensions.height)
+      NSLog("[Camera] \(prefix): photoOutput=\(addr), maxPhotoDimensions=\(output.maxPhotoDimensions.width)x\(output.maxPhotoDimensions.height)")
     } else {
-      NSLog("[Camera] \(prefix): photoOutput=%p", addr)
+      NSLog("[Camera] \(prefix): photoOutput=\(addr)")
+
     }
   }
 
