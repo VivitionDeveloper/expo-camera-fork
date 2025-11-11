@@ -377,15 +377,14 @@ class CameraSessionManager: NSObject {
         }
       }
 
-      if let active = device.activeFormat {
-        let dims = CMVideoFormatDescriptionGetDimensions(active.formatDescription)
-        NSLog("[Camera] ==== ACTIVE FORMAT ====")
-        NSLog("[Camera] Active format index: %d", device.formats.firstIndex(of: active) ?? -1)
-        NSLog("[Camera] Active format base size: %dx%d", dims.width, dims.height)
-        if #available(iOS 17.0, *) {
-          for dim in active.supportedMaxPhotoDimensions {
-            NSLog("    → activeFormat supportedMaxPhotoDimensions: %dx%d", dim.width, dim.height)
-          }
+      let active = device.activeFormat
+      let activeDims = CMVideoFormatDescriptionGetDimensions(active.formatDescription)
+      NSLog("[Camera] ==== ACTIVE FORMAT ====")
+      NSLog("[Camera] Active format index: %d", device.formats.firstIndex(of: active) ?? -1)
+      NSLog("[Camera] Active format base size: %dx%d", activeDims.width, activeDims.height)
+      if #available(iOS 17.0, *) {
+        for dim in active.supportedMaxPhotoDimensions {
+          NSLog("    → activeFormat supportedMaxPhotoDimensions: %dx%d", dim.width, dim.height)
         }
       }
 
