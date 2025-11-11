@@ -335,6 +335,8 @@ class CameraSessionManager: NSObject {
 
     let photoOutput = AVCapturePhotoOutput()
     photoOutput.isLivePhotoCaptureEnabled = false
+    photoOutput.isHighResolutionCaptureEnabled = true
+    photoOutput.maxPhotoQualityPrioritization = .quality
     
     session.beginConfiguration()
     if session.canAddOutput(photoOutput) {
@@ -351,8 +353,10 @@ class CameraSessionManager: NSObject {
       let supported = device.activeFormat.supportedMaxPhotoDimensions
 
       if let maxDim = supported.max(by: { $0.width * $0.height < $1.width * $1.height }) {
-        photoOutput.maxPhotoDimensions = maxDim
-        NSLog("[Camera] Configured output.maxPhotoDimensions to \(maxDim.width)x\(maxDim.height)")
+        self.photoOutput.isHighResolutionCaptureEnabled = true
+        self.photoOutput.maxPhotoQualityPrioritization = .quality
+        self.photoOutput.maxPhotoDimensions = maxDim
+        NSLog("[Camera] Configured output.maxPhotoDimensions to \(self.photoOutput.maxPhotoDimensions.width)x\(self.photoOutput.maxPhotoDimensions.height)")
       }
     }
     
