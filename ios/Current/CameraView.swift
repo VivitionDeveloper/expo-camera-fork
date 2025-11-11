@@ -197,6 +197,20 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     previewLayer.needsDisplayOnBoundsChange = true
   }
 
+  public func logPhotoOutput(_ prefix: String, _ output: AVCapturePhotoOutput?) {
+    guard let output else {
+      NSLog("[Camera] \(prefix): photoOutput is nil")
+      return
+    }
+    let addr = Unmanaged.passUnretained(output).toOpaque()
+    if #available(iOS 17.0, *) {
+      NSLog("[Camera] \(prefix): photoOutput=%p, maxPhotoDimensions=%dx%d",
+            addr, output.maxPhotoDimensions.width, output.maxPhotoDimensions.height)
+    } else {
+      NSLog("[Camera] \(prefix): photoOutput=%p", addr)
+    }
+  }
+
   public func onAppForegrounded() {
     sessionQueue.async { [weak self] in
       guard let self else {
