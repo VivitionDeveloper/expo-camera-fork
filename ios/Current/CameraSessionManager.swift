@@ -335,15 +335,7 @@ class CameraSessionManager: NSObject {
 
     let photoOutput = AVCapturePhotoOutput()
     photoOutput.isLivePhotoCaptureEnabled = false
-    if #available(iOS 17.0, *),
-      let device = currentDevice {
-      let supported = device.activeFormat.supportedMaxPhotoDimensions
-
-      if let maxDim = supported.max(by: { $0.width * $0.height < $1.width * $1.height }) {
-        photoOutput.maxPhotoDimensions = maxDim
-        NSLog("[Camera] Configured output.maxPhotoDimensions to \(maxDim.width)x\(maxDim.height)")
-      }
-    }
+    
     session.beginConfiguration()
     if session.canAddOutput(photoOutput) {
       session.addOutput(photoOutput)
@@ -353,7 +345,17 @@ class CameraSessionManager: NSObject {
     session.sessionPreset = delegate.mode == .video
     ? delegate.videoQuality.toPreset()
     : delegate.pictureSize.toCapturePreset()
+    
+    if #available(iOS 17.0, *),
+      let device = currentDevice {
+      let supported = device.activeFormat.supportedMaxPhotoDimensions
 
+      if let maxDim = supported.max(by: { $0.width * $0.height < $1.width * $1.height }) {
+        photoOutput.maxPhotoDimensions = maxDim
+        NSLog("[Camera] Configured output.maxPhotoDimensions to \(maxDim.width)x\(maxDim.height)")
+      }
+    }
+    
     session.commitConfiguration()
     addErrorNotification()
     delegate.changePreviewOrientation()

@@ -121,6 +121,9 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
     if photoCaptureOptions?.shutterSound == false {
       AudioServicesDisposeSystemSoundID(1108)
     }
+    NSLog("[Camera] Captured photo with size: %dx%d",
+          resolvedSettings.photoDimensions.width,
+          resolvedSettings.photoDimensions.height)
   }
 
   func photoOutput(
@@ -177,6 +180,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
 
     let cropRect = CGRect(x: 0, y: 0, width: takenCgImage.width, height: takenCgImage.height)
     let croppedSize = AVMakeRect(aspectRatio: previewSize, insideRect: cropRect)
+    NSLog("[Camera] Cropping image from size: \(cropRect.size.width)x\(cropRect.size.height) to size: \(croppedSize.size.width)x\(croppedSize.size.height)")
 
     takenImage = ExpoCameraUtils.crop(image: takenImage, to: croppedSize)
 
