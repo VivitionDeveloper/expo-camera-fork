@@ -362,7 +362,9 @@ class CameraSessionManager: NSObject {
     
     session.commitConfiguration()
 
-    NSLog("[Camera] photoOutput.maxPhotoDimensions right after commit: \(self.photoOutput?.maxPhotoDimensions.width)x\(self.photoOutput?.maxPhotoDimensions.height)")
+    if #available(iOS 17.0, *) {
+      NSLog("[Camera] photoOutput.maxPhotoDimensions right after commit: \(self.photoOutput?.maxPhotoDimensions.width)x\(self.photoOutput?.maxPhotoDimensions.height)")
+    }
 
     addErrorNotification()
     delegate.changePreviewOrientation()
