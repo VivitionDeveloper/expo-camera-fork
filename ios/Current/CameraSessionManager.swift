@@ -353,16 +353,16 @@ class CameraSessionManager: NSObject {
       let supported = device.activeFormat.supportedMaxPhotoDimensions
 
       if let maxDim = supported.max(by: { $0.width * $0.height < $1.width * $1.height }) {
-        self.photoOutput.isHighResolutionCaptureEnabled = true
-        self.photoOutput.maxPhotoQualityPrioritization = .quality
-        self.photoOutput.maxPhotoDimensions = maxDim
-        NSLog("[Camera] Configured output.maxPhotoDimensions to \(self.photoOutput.maxPhotoDimensions.width)x\(self.photoOutput.maxPhotoDimensions.height)")
+        self.photoOutput?.isHighResolutionCaptureEnabled = true
+        self.photoOutput?.maxPhotoQualityPrioritization = .quality
+        self.photoOutput?.maxPhotoDimensions = maxDim
+        NSLog("[Camera] Configured output.maxPhotoDimensions to \(self.photoOutput?.maxPhotoDimensions.width)x\(self.photoOutput?.maxPhotoDimensions.height)")
       }
     }
     
     session.commitConfiguration()
 
-    NSLog("[Camera] photoOutput.maxPhotoDimensions right after commit: \(self.photoOutput.maxPhotoDimensions.width)x\(self.photoOutput.maxPhotoDimensions.height)")
+    NSLog("[Camera] photoOutput.maxPhotoDimensions right after commit: \(self.photoOutput?.maxPhotoDimensions.width)x\(self.photoOutput?.maxPhotoDimensions.height)")
 
     addErrorNotification()
     delegate.changePreviewOrientation()
