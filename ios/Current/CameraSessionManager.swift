@@ -57,6 +57,7 @@ class CameraSessionManager: NSObject {
         session.beginConfiguration()
         defer { session.commitConfiguration() }
         session.sessionPreset = preset
+        NSLog("[Camera] Session preset updated to \(preset.rawValue)")
       }
     } else {
       // The selected preset cannot be used on the current device so we fall back to the highest available.
@@ -363,7 +364,7 @@ class CameraSessionManager: NSObject {
     
     session.commitConfiguration()
 
-    delegate.logPhotoOutput("after commit", self.photoOutput)
+    delegate.logPhotoOutput("After commit", self.photoOutput)
 
     addErrorNotification()
     delegate.changePreviewOrientation()

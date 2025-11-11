@@ -57,7 +57,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       throw CameraNotReadyException()
     }
 
-    captureDelegate.logPhotoOutput("TakePicture start", self.photoOutput)
+    captureDelegate?.logPhotoOutput("TakePicture start", self.photoOutput)
     return try await withCheckedThrowingContinuation { continuation in
       photoCapturedContinuation = continuation
       photoCaptureOptions = options
@@ -92,7 +92,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
           }) {
             photoSettings.maxPhotoDimensions = match
             NSLog("[Camera] Matched requested maxPhotoDimensions (set in photoSettings): \(match.width)x\(match.height)")
-            captureDelegate.logPhotoOutput("After setting maxPhotoDimensions", self.photoOutput)
+            captureDelegate?.logPhotoOutput("After setting maxPhotoDimensions", self.photoOutput)
           } else {
             // No match: fall back to output default (or omit to let iOS decide)
             photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
