@@ -34,6 +34,7 @@ class CameraSessionManager: NSObject {
   private var captureDeviceInput: AVCaptureDeviceInput?
   private var photoOutput: AVCapturePhotoOutput?
   private var videoFileOutput: AVCaptureMovieFileOutput?
+  private var maxPhotoDimsObservation: NSKeyValueObservation?
 
   init(delegate: CameraSessionManagerDelegate) {
     self.delegate = delegate
@@ -359,6 +360,14 @@ class CameraSessionManager: NSObject {
         self.photoOutput?.maxPhotoQualityPrioritization = .quality
         self.photoOutput?.maxPhotoDimensions = maxDim
         NSLog("[Camera] Configured output.maxPhotoDimensions to \(self.photoOutput?.maxPhotoDimensions.width)x\(self.photoOutput?.maxPhotoDimensions.height)")
+
+
+        maxPhotoDimsObservation = self.photoOutput?.observe(\.maxPhotoDimensions, options: [.old, .new]) {
+          output, change in
+          let old = change.oldValue ?? .init(width: 0, height: 0)
+          let new = change.newValue ?? .init(width: 0, height: 0)
+          NSLog("[Camera] maxPhotoDimensions changed: \(old.width)x\(old.height) -> \(new.width)x\(new.height)")
+        }
       }
     }
     
