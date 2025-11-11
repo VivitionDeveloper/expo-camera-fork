@@ -14,7 +14,7 @@ protocol CameraPhotoCaptureDelegate: AnyObject {
   var flashMode: FlashMode { get }
   var onPictureSaved: EventDispatcher { get }
 
-  func logPhotoOutput(_ message: String, _ output: AVCapturePhotoOutput)
+  func logPhotoOutput(_ message: String, _ output: AVCapturePhotoOutput?)
 }
 
 class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {

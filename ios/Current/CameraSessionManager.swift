@@ -22,7 +22,7 @@ protocol CameraSessionManagerDelegate: AnyObject {
 
   func emitAvailableLenses()
   func changePreviewOrientation()
-  func logPhotoOutput(_ message: String, _ output: AVCapturePhotoOutput)
+  func logPhotoOutput(_ message: String, _ output: AVCapturePhotoOutput?)
 }
 
 class CameraSessionManager: NSObject {
