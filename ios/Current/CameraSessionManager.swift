@@ -393,7 +393,7 @@ class CameraSessionManager: NSObject {
 
     addErrorNotification()
     delegate.changePreviewOrientation()
-    // delegate.barcodeScanner?.maybeStartBarcodeScanning()
+    delegate.barcodeScanner?.maybeStartBarcodeScanning()
     updateCameraIsActive() // starts the session
     DispatchQueue.main.async { [weak delegate] in
       delegate?.onCameraReady()

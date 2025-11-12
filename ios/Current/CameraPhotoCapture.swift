@@ -75,10 +75,13 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       if photoOutput.availablePhotoCodecTypes.contains(AVVideoCodecType.hevc) {
         photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
       }
-      if let rawType = photoOutput.availableRawPhotoPixelFormatTypes.first {
-        photoSettings = AVCapturePhotoSettings(rawPixelFormatType: rawType)
-        NSLog("[Camera] Capturing RAW photo with pixel format type: \(rawType)")
-      }
+
+      // Add this when we want to capture RAW photos
+      // if let rawType = photoOutput.availableRawPhotoPixelFormatTypes.first {
+      //   photoSettings = AVCapturePhotoSettings(rawPixelFormatType: rawType)
+      //   NSLog("[Camera] Capturing RAW photo with pixel format type: \(rawType)")
+      //   // NOTE: don't set photoQualityPrioritization for RAW photos
+      // }
 
       let requestedFlashMode = captureDelegate?.flashMode.toDeviceFlashMode() ?? .auto
       if photoOutput.supportedFlashModes.contains(requestedFlashMode) {
@@ -118,6 +121,8 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       if photoOutput.isHighResolutionCaptureEnabled {
         photoSettings.isHighResolutionPhotoEnabled = true
       }
+
+      // NOTE: Not supported for RAW photos
       photoSettings.photoQualityPrioritization = photoOutput.maxPhotoQualityPrioritization
       
       photoOutput.capturePhoto(with: photoSettings, delegate: self)
