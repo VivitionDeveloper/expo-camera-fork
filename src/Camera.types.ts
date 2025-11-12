@@ -195,8 +195,14 @@ export type CameraPictureOptions = {
   pictureRef?: boolean;
   /**
    * What max dimensions shoud the picture have? Should be one of the dimensions returned by getSupportedMaxPhotoDimensions. 
+   * @platform ios
    */
   maxPhotoDimensions?: MaxPhotoDimensions;
+  /**
+   * If true, the captured image will be cropped to match the aspect ratio of the preview. Default true.
+   * @platform ios
+   */
+  cropToAspectRatio?: boolean;
 };
 
 // @needsAudit

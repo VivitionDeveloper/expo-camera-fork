@@ -38,8 +38,11 @@ struct TakePictureOptions: Record {
   @Field
   var pictureRef: Bool = false
 
-   @Field
+  @Field
   var maxPhotoDimensions: MaxPhotoDimensions? = nil
+
+  @Field
+  var cropToAspectRatio: Bool = true
 }
 
 struct SavePictureOptions: Record {

@@ -180,22 +180,23 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       throw CameraSavingImageException("Failed to process image data")
     }
 
-    let previewSize = if captureDelegate.deviceOrientation == .portrait {
-      CGSize(width: captureDelegate.previewLayer.frame.size.height, height: captureDelegate.previewLayer.frame.size.width)
-    } else {
-      CGSize(width: captureDelegate.previewLayer.frame.size.width, height: captureDelegate.previewLayer.frame.size.height)
+    if (options.cropToAspectRatio) {
+      let previewSize = if captureDelegate.deviceOrientation == .portrait {
+        CGSize(width: captureDelegate.previewLayer.frame.size.height, height: captureDelegate.previewLayer.frame.size.width)
+      } else {
+        CGSize(width: captureDelegate.previewLayer.frame.size.width, height: captureDelegate.previewLayer.frame.size.height)
+      }
+
+      guard let takenCgImage = takenImage.cgImage else {
+        throw CameraSavingImageException("Failed to get CGImage")
+      }
+
+      let cropRect = CGRect(x: 0, y: 0, width: takenCgImage.width, height: takenCgImage.height)
+      let croppedSize = AVMakeRect(aspectRatio: previewSize, insideRect: cropRect)
+      NSLog("[Camera] Cropping image from size: \(cropRect.size.width)x\(cropRect.size.height) to size: \(croppedSize.size.width)x\(croppedSize.size.height)")
+
+      takenImage = ExpoCameraUtils.crop(image: takenImage, to: croppedSize)
     }
-
-    guard let takenCgImage = takenImage.cgImage else {
-      throw CameraSavingImageException("Failed to get CGImage")
-    }
-
-    let cropRect = CGRect(x: 0, y: 0, width: takenCgImage.width, height: takenCgImage.height)
-    let croppedSize = AVMakeRect(aspectRatio: previewSize, insideRect: cropRect)
-    NSLog("[Camera] Cropping image from size: \(cropRect.size.width)x\(cropRect.size.height) to size: \(croppedSize.size.width)x\(croppedSize.size.height)")
-
-    takenImage = ExpoCameraUtils.crop(image: takenImage, to: croppedSize)
-
     let width = takenImage.size.width
     let height = takenImage.size.height
     var processedImageData: Data?
