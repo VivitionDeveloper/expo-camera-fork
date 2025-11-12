@@ -133,6 +133,7 @@ class CameraSessionManager: NSObject {
       return
     }
 
+    NSLog("[Camera] updateSessionAudioIsMuted: isMuted = \(delegate.isMuted)")
     session.beginConfiguration()
     defer { session.commitConfiguration() }
 
@@ -247,6 +248,7 @@ class CameraSessionManager: NSObject {
 #if targetEnvironment(simulator)
     return
 #else
+    NSLog("[Camera] Stopping session and removing all inputs and outputs.")
     session.beginConfiguration()
     for input in self.session.inputs {
       session.removeInput(input)
@@ -297,6 +299,12 @@ class CameraSessionManager: NSObject {
 
   private func addDevice(_ device: AVCaptureDevice) {
     guard let delegate else {
+      return
+    }
+
+    // check if device is already present
+    if let currentDevice = captureDeviceInput?.device, currentDevice.uniqueID == device.uniqueID {
+      NSLog("[Camera] Device already added: \(device.localizedName)")
       return
     }
 

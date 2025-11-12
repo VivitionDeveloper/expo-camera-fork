@@ -115,6 +115,7 @@ class BarcodeScanner: NSObject, BarcodeScanningResponseHandler {
       zxingEnabled: zxingEnabled,
       metadataResultHandler: self)
 
+    NSLog("[Camera] [BarcodeScanner] Adding outputs.")
     session.beginConfiguration()
     if metadataOutput == nil {
       let output = AVCaptureMetadataOutput()
@@ -139,6 +140,7 @@ class BarcodeScanner: NSObject, BarcodeScanningResponseHandler {
   }
 
   private func removeOutputs() {
+    NSLog("[Camera] [BarcodeScanner] Removing outputs.")
     session.beginConfiguration()
     defer { session.commitConfiguration() }
 
