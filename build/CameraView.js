@@ -119,6 +119,9 @@ export default class CameraView extends Component {
     async pausePreview() {
         return this._cameraRef.current?.pausePreview();
     }
+    async setWhiteBalance(kelvinTemperature) {
+        return this._cameraRef.current?.setWhiteBalance(kelvinTemperature);
+    }
     // Values under keys from this object will be transformed to native options
     static ConversionTables = ConversionTables;
     static defaultProps = {

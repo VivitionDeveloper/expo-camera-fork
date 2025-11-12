@@ -56,6 +56,7 @@ export default class CameraView extends Component<CameraViewProps> {
      * Pauses the camera preview. It is not recommended to use `takePictureAsync` when preview is paused.
      */
     pausePreview(): Promise<void>;
+    setWhiteBalance(kelvinTemperature: number): Promise<void>;
     static ConversionTables: {
         [prop: string]: unknown;
         type: Record<keyof import("./Camera.types").CameraType, import("./Camera.types").CameraNativeProps["facing"]>;

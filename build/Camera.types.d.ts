@@ -470,6 +470,7 @@ export interface CameraViewRef {
     readonly launchModernScanner: () => Promise<void>;
     readonly resumePreview: () => Promise<void>;
     readonly pausePreview: () => Promise<void>;
+    readonly setWhiteBalance: (kelvinTemperature: number) => Promise<void>;
 }
 /**
  * @hidden
