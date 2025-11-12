@@ -308,7 +308,7 @@ class CameraSessionManager: NSObject {
         let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
           temperature: Float(kelvinTemperature),
           tint: 0.0)
-        let whiteBalanceGains = device.deviceWhiteBalanceGains(for: temperatureAndTint)
+        var whiteBalanceGains = device.deviceWhiteBalanceGains(for: temperatureAndTint)
         whiteBalanceGains = self.normalizedGains(whiteBalanceGains, for: device)
         device.setWhiteBalanceModeLocked(with: whiteBalanceGains, completionHandler: nil)
         NSLog("[Camera] Set white balance to \(kelvinTemperature)K, gains: \(whiteBalanceGains)")
