@@ -66,6 +66,7 @@ class CameraSessionManager: NSObject {
         session.beginConfiguration()
         defer { session.commitConfiguration() }
         session.sessionPreset = .high
+        NSLog("[Camera] Session preset updated to \(.high.rawValue)")
       }
     }
 #endif
@@ -313,6 +314,7 @@ class CameraSessionManager: NSObject {
       if session.canAddInput(deviceInput) {
         session.addInput(deviceInput)
         captureDeviceInput = deviceInput
+        NSLog("[Camera] Added device input: \(device.localizedName)")
         updateZoom()
       }
     } catch {
@@ -364,10 +366,16 @@ class CameraSessionManager: NSObject {
 
         maxPhotoDimsObservation = self.photoOutput?.observe(\.maxPhotoDimensions, options: [.old, .new]) {
           output, change in
-          let old = change.oldValue ?? .init(width: 0, height: 0)
-          let new = change.newValue ?? .init(width: 0, height: 0)
-          NSLog("[Camera] maxPhotoDimensions changed: \(old.width)x\(old.height) -> \(new.width)x\(new.height)")
+          NSLog("[Camera] maxPhotoDimensions changed: \(self.photoOutput?.maxPhotoDimensions.width)x\(self.photoOutput?.maxPhotoDimensions.height)")
         }
+      }
+    }
+
+    // for now: remove existing metadata outputs to be sure it doesn't interfere with high resolution photo capture
+    for output in session.outputs {
+      if output is AVCaptureMetadataOutput {
+        session.removeOutput(output)
+        NSLog("[Camera] Removed AVCaptureMetadataOutput")
       }
     }
     
@@ -377,12 +385,13 @@ class CameraSessionManager: NSObject {
 
     addErrorNotification()
     delegate.changePreviewOrientation()
-    delegate.barcodeScanner?.maybeStartBarcodeScanning()
+    // delegate.barcodeScanner?.maybeStartBarcodeScanning()
     updateCameraIsActive() // starts the session
     DispatchQueue.main.async { [weak delegate] in
       delegate?.onCameraReady()
     }
     enableTorch()
+    delegate.logPhotoOutput("End of startSession", self.photoOutput)
 #endif
   }
 }

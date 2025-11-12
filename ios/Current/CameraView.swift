@@ -207,7 +207,6 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
       NSLog("[Camera] \(prefix): photoOutput=\(addr), maxPhotoDimensions=\(output.maxPhotoDimensions.width)x\(output.maxPhotoDimensions.height)")
     } else {
       NSLog("[Camera] \(prefix): photoOutput=\(addr)")
-
     }
   }
 
