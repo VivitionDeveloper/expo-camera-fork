@@ -66,7 +66,7 @@ class CameraSessionManager: NSObject {
         session.beginConfiguration()
         defer { session.commitConfiguration() }
         session.sessionPreset = .high
-        NSLog("[Camera] Session preset updated to \(.high.rawValue)")
+        NSLog("[Camera] Session preset updated to \(session.sessionPreset.rawValue)")
       }
     }
 #endif
