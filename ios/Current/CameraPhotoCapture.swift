@@ -75,6 +75,10 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       if photoOutput.availablePhotoCodecTypes.contains(AVVideoCodecType.hevc) {
         photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
       }
+      if let rawType = photoOutput.availableRawPhotoPixelFormatTypes.first {
+        photoSettings = AVCapturePhotoSettings(rawPixelFormatType: rawType)
+        NSLog("[Camera] Capturing RAW photo with pixel format type: \(rawType)")
+      }
 
       let requestedFlashMode = captureDelegate?.flashMode.toDeviceFlashMode() ?? .auto
       if photoOutput.supportedFlashModes.contains(requestedFlashMode) {
