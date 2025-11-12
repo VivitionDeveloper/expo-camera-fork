@@ -297,6 +297,38 @@ class CameraSessionManager: NSObject {
     return captureDeviceInput?.device
   }
 
+  func setWhiteBalance(kelvinTemperature: Int) {
+    guard let device = captureDeviceInput?.device else {
+      return
+    }
+
+    do {
+      try device.lockForConfiguration()
+      if device.isWhiteBalanceModeSupported(.locked) {
+        let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
+          temperature: Float(kelvinTemperature),
+          tint: 0.0)
+        let whiteBalanceGains = device.deviceWhiteBalanceGains(for: temperatureAndTint)
+        whiteBalanceGains = self.normalizedGains(whiteBalanceGains, for: device)
+        device.setWhiteBalanceModeLocked(with: whiteBalanceGains, completionHandler: nil)
+        NSLog("[Camera] Set white balance to \(kelvinTemperature)K, gains: \(whiteBalanceGains)")
+      }
+    } catch {
+      NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
+    }
+    device.unlockForConfiguration()
+  }
+
+  private func normalizedGains(_ gains: AVCaptureDevice.WhiteBalanceGains,
+                                for device: AVCaptureDevice) -> AVCaptureDevice.WhiteBalanceGains {
+    var g = gains
+    let maxGain = device.maxWhiteBalanceGain
+    g.redGain   = min(max(g.redGain,   1.0), maxGain)
+    g.greenGain = min(max(g.greenGain, 1.0), maxGain)
+    g.blueGain  = min(max(g.blueGain,  1.0), maxGain)
+    return g
+  }
+
   private func addDevice(_ device: AVCaptureDevice) {
     guard let delegate else {
       return

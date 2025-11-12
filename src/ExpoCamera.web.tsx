@@ -125,6 +125,9 @@ const ExponentCamera = ({
         console.warn('getSupportedMaxPhotoDimensions is not supported on web.');
         return [];
       },
+      async setWhiteBalance(kelvinTemperature: number): Promise<void> {
+        console.warn('setWhiteBalance is not supported on web.');
+      },
     }),
     [native.mediaTrackSettings, props.onPictureSaved]
   );
