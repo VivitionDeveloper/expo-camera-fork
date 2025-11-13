@@ -30,7 +30,7 @@ public final class CameraViewModule: Module, ScannerResultHandler {
         withPermissionsManager: permissionsManager
       )
       NSSetUncaughtExceptionHandler { ex in
-        NSLog("[FATAL][ExpoCamera] Uncaught NSException: \(ex.name.rawValue) \(ex.reason ?? "")")
+        NSLog("[Camera] [FATAL] Uncaught NSException: \(ex.name.rawValue) \(ex.reason ?? "")")
         NSLog(ex.callStackSymbols.joined(separator: "\n"))
       }
     }
@@ -267,7 +267,7 @@ public final class CameraViewModule: Module, ScannerResultHandler {
       AsyncFunction("setWhiteBalance") { (view, kelvinTemperature: Int) in
         view.setWhiteBalance(kelvinTemperature: kelvinTemperature)
       }
-      
+
       AsyncFunction("takePictureRef") { (view, options: TakePictureOptions) -> PictureRef in
         #if targetEnvironment(simulator)
         return try takePictureRefForSimulator(self.appContext, view, options)

@@ -313,6 +313,9 @@ class CameraSessionManager: NSObject {
         device.setWhiteBalanceModeLocked(with: whiteBalanceGains, completionHandler: nil)
         NSLog("[Camera] Set white balance to \(kelvinTemperature)K, gains: \(whiteBalanceGains)")
       }
+      else {
+        NSLog("[Camera] White balance locked mode is not supported on this device.")
+      }
     } catch {
       NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
     }

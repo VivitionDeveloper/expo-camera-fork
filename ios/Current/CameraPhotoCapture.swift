@@ -197,6 +197,9 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
 
       takenImage = ExpoCameraUtils.crop(image: takenImage, to: croppedSize)
     }
+    else {
+      NSLog("[Camera] Skipping cropping of image as per option.")
+    }
     let width = takenImage.size.width
     let height = takenImage.size.height
     var processedImageData: Data?
