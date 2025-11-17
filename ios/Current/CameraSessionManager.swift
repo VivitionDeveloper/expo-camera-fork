@@ -14,6 +14,7 @@ protocol CameraSessionManagerDelegate: AnyObject {
   var torchEnabled: Bool { get }
   var autoFocus: AVCaptureDevice.FocusMode { get }
   var zoom: CGFloat { get }
+  var whiteBalanceTemperature: Int { get }
   var onMountError: EventDispatcher { get }
   var onCameraReady: EventDispatcher { get }
   var permissionsManager: EXPermissionsInterface? { get }
@@ -211,6 +212,37 @@ class CameraSessionManager: NSObject {
     device.unlockForConfiguration()
   }
 
+  func updateWhiteBalance() {
+    guard let device = captureDeviceInput?.device, let delegate else {
+      return
+    }
+
+    do {
+      try device.lockForConfiguration()
+      if device.isWhiteBalanceModeSupported(.locked) {
+        if delegate.whiteBalanceTemperature > 0 {
+          let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
+            temperature: Float(delegate.whiteBalanceTemperature),
+            tint: 0.0)
+          var whiteBalanceGains = device.deviceWhiteBalanceGains(for: temperatureAndTint)
+          whiteBalanceGains = self.normalizedGains(whiteBalanceGains, for: device)        
+          device.setWhiteBalanceModeLocked(with: whiteBalanceGains, completionHandler: nil)
+          NSLog("[Camera] Set white balance to \(delegate.whiteBalanceTemperature)K, gains: \(whiteBalanceGains)")
+        }
+        else {
+          device.whiteBalanceMode = .continuousAutoWhiteBalance
+          NSLog("[Camera] Set white balance to continuous mode")
+        }
+      }
+      else {
+        NSLog("[Camera] White balance locked mode is not supported on this device.")
+      }
+    } catch {
+      NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
+    }
+    device.unlockForConfiguration()
+  }
+
   func getAvailableLenses() -> [String] {
     guard let delegate else {
       return []
@@ -297,31 +329,6 @@ class CameraSessionManager: NSObject {
     return captureDeviceInput?.device
   }
 
-  func setWhiteBalance(kelvinTemperature: Int) {
-    guard let device = captureDeviceInput?.device else {
-      return
-    }
-
-    do {
-      try device.lockForConfiguration()
-      if device.isWhiteBalanceModeSupported(.locked) {
-        let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
-          temperature: Float(kelvinTemperature),
-          tint: 0.0)
-        var whiteBalanceGains = device.deviceWhiteBalanceGains(for: temperatureAndTint)
-        whiteBalanceGains = self.normalizedGains(whiteBalanceGains, for: device)
-        device.setWhiteBalanceModeLocked(with: whiteBalanceGains, completionHandler: nil)
-        NSLog("[Camera] Set white balance to \(kelvinTemperature)K, gains: \(whiteBalanceGains)")
-      }
-      else {
-        NSLog("[Camera] White balance locked mode is not supported on this device.")
-      }
-    } catch {
-      NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
-    }
-    device.unlockForConfiguration()
-  }
-
   private func normalizedGains(_ gains: AVCaptureDevice.WhiteBalanceGains,
                                 for device: AVCaptureDevice) -> AVCaptureDevice.WhiteBalanceGains {
     var g = gains
@@ -359,6 +366,7 @@ class CameraSessionManager: NSObject {
         captureDeviceInput = deviceInput
         NSLog("[Camera] Added device input: \(device.localizedName)")
         updateZoom()
+        updateWhiteBalance()
       }
     } catch {
       delegate.onMountError(["message": "Camera could not be started - \(error.localizedDescription)"])

@@ -366,6 +366,12 @@ export type CameraViewProps = ViewProps & {
    */
   zoom?: number;
   /**
+   * Sets the desired white balance by specifying the color temperature in Kelvin.
+   * A value of `0` lets the camera choose the best white balance automatically.
+   * @default 0
+   */
+  whiteBalanceTemperature?: number;
+  /**
    * Used to select image or video output.
    * @default 'picture'
    */
@@ -509,7 +515,6 @@ export interface CameraViewRef {
   readonly launchModernScanner: () => Promise<void>;
   readonly resumePreview: () => Promise<void>;
   readonly pausePreview: () => Promise<void>;
-  readonly setWhiteBalance: (kelvinTemperature: number) => Promise<void>;
 }
 
 /**
@@ -532,6 +537,7 @@ export type CameraNativeProps = {
   autoFocus?: FocusMode;
   mute?: boolean;
   zoom?: number;
+  whiteBalanceTemperature?: number;
   ratio?: CameraRatio;
   barcodeScannerSettings?: BarcodeSettings;
   barcodeScannerEnabled?: boolean;

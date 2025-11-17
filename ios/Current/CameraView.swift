@@ -89,12 +89,6 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     }
   }
 
-  func setWhiteBalance(kelvinTemperature: Int) {
-    sessionQueue.async {
-      self.sessionManager.setWhiteBalance(kelvinTemperature: kelvinTemperature)
-    }
-  }
-
   var flashMode = FlashMode.auto
 
   var torchEnabled = false {
@@ -155,6 +149,12 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
   var zoom: CGFloat = 0 {
     didSet {
       sessionManager.updateZoom()
+    }
+  }
+
+  var whiteBalanceTemperature: Int = 0 {
+    didSet {
+      sessionManager.updateWhiteBalance()
     }
   }
 

@@ -143,6 +143,16 @@ public final class CameraViewModule: Module, ScannerResultHandler {
         }
       }
 
+      Prop("whiteBalanceTemperature") { (view, whiteBalanceTemperature: Int?) in
+        if let whiteBalanceTemperature, view.whiteBalanceTemperature != whiteBalanceTemperature {
+          view.whiteBalanceTemperature = whiteBalanceTemperature
+          return
+        }
+        if whiteBalanceTemperature == nil && view.whiteBalanceTemperature != 0 {
+          view.whiteBalanceTemperature = 0
+        }
+      }
+
       Prop("mode") { (view, mode: CameraMode?) in
         if let mode, view.mode != mode {
           view.mode = mode
@@ -262,10 +272,6 @@ public final class CameraViewModule: Module, ScannerResultHandler {
 
       AsyncFunction("getSupportedMaxPhotoDimensions") { view in
         return view.getSupportedMaxPhotoDimensions()
-      }
-
-      AsyncFunction("setWhiteBalance") { (view, kelvinTemperature: Int) in
-        view.setWhiteBalance(kelvinTemperature: kelvinTemperature)
       }
 
       AsyncFunction("takePictureRef") { (view, options: TakePictureOptions) -> PictureRef in

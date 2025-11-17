@@ -86,9 +86,6 @@ const ExponentCamera = ({ facing, poster, ref, ...props }) => {
             console.warn('getSupportedMaxPhotoDimensions is not supported on web.');
             return [];
         },
-        async setWhiteBalance(kelvinTemperature) {
-            console.warn('setWhiteBalance is not supported on web.');
-        },
     }), [native.mediaTrackSettings, props.onPictureSaved]);
     // TODO(Bacon): Create a universal prop, on native the microphone is only used when recording videos.
     // Because we don't support recording video in the browser we don't need the user to give microphone permissions.
