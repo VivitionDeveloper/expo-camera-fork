@@ -1,6 +1,6 @@
 import { type EventSubscription } from 'expo-modules-core';
 import { type Ref, Component } from 'react';
-import { CameraCapturedPicture, CameraOrientation, CameraPictureOptions, CameraViewProps, CameraRecordingOptions, CameraViewRef, MaxPhotoDimensions, ScanningOptions, ScanningResult, VideoCodec, AvailableLenses } from './Camera.types';
+import { CameraCapturedPicture, CameraOrientation, CameraPictureOptions, CameraViewProps, CameraRecordingOptions, CameraViewRef, MaxPhotoDimensions, ScanningOptions, ScanningResult, VideoCodec, AvailableLenses, ExposureTapEvent } from './Camera.types';
 import { PictureRef } from './PictureRef';
 export default class CameraView extends Component<CameraViewProps> {
     /**
@@ -165,6 +165,9 @@ export default class CameraView extends Component<CameraViewProps> {
     _onCameraReady: () => void;
     _onAvailableLensesChanged: ({ nativeEvent }: {
         nativeEvent: AvailableLenses;
+    }) => void;
+    _onExposureTap: ({ nativeEvent }: {
+        nativeEvent: ExposureTapEvent;
     }) => void;
     _onMountError: ({ nativeEvent }: {
         nativeEvent: {

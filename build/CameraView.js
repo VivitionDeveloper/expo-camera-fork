@@ -224,6 +224,11 @@ export default class CameraView extends Component {
             this.props.onAvailableLensesChanged(nativeEvent);
         }
     };
+    _onExposureTap = ({ nativeEvent }) => {
+        if (this.props.onExposureTap) {
+            this.props.onExposureTap(nativeEvent);
+        }
+    };
     _onMountError = ({ nativeEvent }) => {
         if (this.props.onMountError) {
             this.props.onMountError(nativeEvent);
@@ -266,7 +271,7 @@ export default class CameraView extends Component {
             console.warn('The <CameraView> component does not support children. This may lead to inconsistent behaviour or crashes. If you want to render content on top of the Camera, consider using absolute positioning.');
             loggedRenderingChildrenWarning = true;
         }
-        return (<ExpoCamera {...nativeProps} ref={this._cameraRef} onCameraReady={this._onCameraReady} onMountError={this._onMountError} onBarcodeScanned={onBarcodeScanned} onAvailableLensesChanged={this._onAvailableLensesChanged} onPictureSaved={_onPictureSaved} onResponsiveOrientationChanged={this._onResponsiveOrientationChanged}/>);
+        return (<ExpoCamera {...nativeProps} ref={this._cameraRef} onCameraReady={this._onCameraReady} onMountError={this._onMountError} onBarcodeScanned={onBarcodeScanned} onAvailableLensesChanged={this._onAvailableLensesChanged} onExposureTap={this._onExposureTap} onPictureSaved={_onPictureSaved} onResponsiveOrientationChanged={this._onResponsiveOrientationChanged}/>);
     }
 }
 //# sourceMappingURL=CameraView.js.map

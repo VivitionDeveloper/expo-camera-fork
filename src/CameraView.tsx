@@ -13,6 +13,7 @@ import {
   ScanningResult,
   VideoCodec,
   AvailableLenses,
+  ExposureTapEvent,
 } from './Camera.types';
 import ExpoCamera from './ExpoCamera';
 import CameraManager from './ExpoCameraManager';
@@ -325,6 +326,12 @@ export default class CameraView extends Component<CameraViewProps> {
     }
   };
 
+  _onExposureTap = ({ nativeEvent }: { nativeEvent: ExposureTapEvent }) => {
+    if (this.props.onExposureTap) {
+      this.props.onExposureTap(nativeEvent);
+    }
+  };
+
   _onMountError = ({ nativeEvent }: { nativeEvent: { message: string } }) => {
     if (this.props.onMountError) {
       this.props.onMountError(nativeEvent);
@@ -392,6 +399,7 @@ export default class CameraView extends Component<CameraViewProps> {
         onMountError={this._onMountError}
         onBarcodeScanned={onBarcodeScanned}
         onAvailableLensesChanged={this._onAvailableLensesChanged}
+        onExposureTap={this._onExposureTap}
         onPictureSaved={_onPictureSaved}
         onResponsiveOrientationChanged={this._onResponsiveOrientationChanged}
       />

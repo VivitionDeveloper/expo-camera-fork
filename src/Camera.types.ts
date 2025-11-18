@@ -240,6 +240,11 @@ export type PictureSavedListener = (event: {
  */
 export type AvailableLensesChangedListener = (event: { nativeEvent: AvailableLenses }) => void;
 
+/**
+ * @hidden
+ */
+export type ExposureTapListener = (event: { nativeEvent: ExposureTapEvent }) => void;
+
 // @docsMissing
 export type AvailableLenses = { lenses: string[] };
 
@@ -345,6 +350,14 @@ export type BarcodeScanningResult = {
 };
 
 export type ScanningResult = Omit<BarcodeScanningResult, 'bounds' | 'cornerPoints'>;
+
+
+export type ExposureTapEvent = {
+  // Point in the view (in points/pixels of the preview view)
+  viewPoint: Point;
+  // Point in AVFoundation device space (0..1, 0..1)
+  devicePoint: Point;
+};
 
 // @needsAudit
 export type CameraViewProps = ViewProps & {
@@ -498,6 +511,12 @@ export type CameraViewProps = ViewProps & {
    * @platform ios
    */
   onAvailableLensesChanged?: (event: AvailableLenses) => void;
+  /**
+   * Callback invoked when the user taps on the preview to set exposure/focus.
+   * `viewPoint` is in the coordinate space of the preview view (points),
+   * `devicePoint` is in AVFoundation's normalized device space (0..1, 0..1).
+   */
+  onExposureTap?: (event: ExposureTapEvent) => void;
 };
 
 /**
@@ -530,6 +549,7 @@ export type CameraNativeProps = {
   onPictureSaved?: PictureSavedListener;
   onResponsiveOrientationChanged?: ResponsiveOrientationChangedListener;
   onAvailableLensesChanged?: AvailableLensesChangedListener;
+  onExposureTap?: ExposureTapListener;
   facing?: string;
   flashMode?: string;
   enableTorch?: boolean;

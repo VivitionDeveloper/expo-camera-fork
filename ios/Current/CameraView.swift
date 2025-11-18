@@ -166,6 +166,7 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
   let onBarcodeScanned = EventDispatcher()
   let onResponsiveOrientationChanged = EventDispatcher()
   let onAvailableLensesChanged = EventDispatcher()
+  let onExposureTap = EventDispatcher()
 
   internal var deviceOrientation: UIInterfaceOrientation {
     UIApplication.shared.connectedScenes.compactMap {
@@ -218,6 +219,17 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     // Update exposure (and focus) based on tapped point
     NSLog("[Camera] Tap to expose/focus at point: \(layerPoint), device point: \(devicePoint)")
     sessionManager.setExposureAndFocus(at: devicePoint)
+    // Emit event to JS side
+    onExposureTap([
+      "viewPoint": [
+        "x": layerPoint.x,
+        "y": layerPoint.y,
+      ],
+      "devicePoint": [
+        "x": devicePoint.x,
+        "y": devicePoint.y,
+      ],
+    ])
   }
 
   public func logPhotoOutput(_ prefix: String, _ output: AVCapturePhotoOutput?) {
