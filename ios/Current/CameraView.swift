@@ -175,6 +175,12 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
+
+    // Enable tap-to-expose on the preview
+    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapToExpose(_:)))
+    addGestureRecognizer(tapGesture)
+    isUserInteractionEnabled = true
+
     lifecycleManager = appContext?.legacyModule(implementing: EXAppLifecycleService.self)
     permissionsManager = appContext?.legacyModule(implementing: EXPermissionsInterface.self)
 
@@ -201,6 +207,17 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     previewLayer = AVCaptureVideoPreviewLayer(session: sessionManager.session)
     previewLayer.videoGravity = .resizeAspectFill
     previewLayer.needsDisplayOnBoundsChange = true
+  }
+
+  @objc private func handleTapToExpose(_ gesture: UITapGestureRecognizer) {
+    let layerPoint = gesture.location(in: self)
+
+    // Convert from view/layer coordinates to camera device coordinates (0..1 in sensor space)
+    let devicePoint = previewLayer.captureDevicePointConverted(fromLayerPoint: layerPoint)
+
+    // Update exposure (and focus) based on tapped point
+    NSLog("[Camera] Tap to expose/focus at point: \(layerPoint), device point: \(devicePoint)")
+    sessionManager.setExposureAndFocus(at: devicePoint)
   }
 
   public func logPhotoOutput(_ prefix: String, _ output: AVCapturePhotoOutput?) {

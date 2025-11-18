@@ -329,6 +329,38 @@ class CameraSessionManager: NSObject {
     return captureDeviceInput?.device
   }
 
+  // Called from CameraView::handleTapToExpose
+  func setExposureAndFocus(at devicePoint: CGPoint) {
+    guard let device = captureDeviceInput?.device else {
+      return
+    }
+
+    do {
+      try device.lockForConfiguration()
+
+      // Auto Exposure on tapped point
+      if device.isExposurePointOfInterestSupported,
+         device.isExposureModeSupported(.continuousAutoExposure) {
+        device.exposurePointOfInterest = devicePoint
+        device.exposureMode = .continuousAutoExposure
+      }
+
+      // Auto Focus on tapped point
+      if device.isFocusPointOfInterestSupported,
+         device.isFocusModeSupported(.continuousAutoFocus) {
+        device.focusPointOfInterest = devicePoint
+        device.focusMode = .continuousAutoFocus
+      }
+
+      // Not for now:
+      // device.isSubjectAreaChangeMonitoringEnabled = true
+    } catch {
+      NSLog("[Camera] \(#function): \(error.localizedDescription)")
+    }
+
+    device.unlockForConfiguration()
+  }
+
   private func normalizedGains(_ gains: AVCaptureDevice.WhiteBalanceGains,
                                 for device: AVCaptureDevice) -> AVCaptureDevice.WhiteBalanceGains {
     var g = gains
