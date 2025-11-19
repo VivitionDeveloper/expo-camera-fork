@@ -203,8 +203,7 @@ class CameraSessionManager: NSObject {
 
     do {
       try device.lockForConfiguration()
-      let minZoom = 1.0
-      device.videoZoomFactor = minZoom * pow(device.activeFormat.videoMaxZoomFactor / minZoom, delegate.zoom)
+      device.videoZoomFactor = max(1.0, min(delegate.zoom, device.activeFormat.videoMaxZoomFactor))
     } catch {
       log.info("\(#function): \(error.localizedDescription)")
     }
