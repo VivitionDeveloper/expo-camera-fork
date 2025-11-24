@@ -218,7 +218,7 @@ class CameraSessionManager: NSObject {
 
     do {
       try device.lockForConfiguration()
-      if device.isWhiteBalanceModeSupported(.locked) {
+      if device.isWhiteBalanceModeSupported(.locked) && device.isLockingWhiteBalanceWithCustomDeviceGainsSupported() {
         if delegate.whiteBalanceTemperature > 0 {
           let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
             temperature: Float(delegate.whiteBalanceTemperature),
@@ -234,7 +234,7 @@ class CameraSessionManager: NSObject {
         }
       }
       else {
-        NSLog("[Camera] White balance locked mode is not supported on this device.")
+        NSLog("[Camera] White balance locked mode or custom device gains are not supported on this device.")
       }
     } catch {
       NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
