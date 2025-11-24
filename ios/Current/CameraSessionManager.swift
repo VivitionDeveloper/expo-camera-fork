@@ -218,7 +218,7 @@ class CameraSessionManager: NSObject {
 
     do {
       try device.lockForConfiguration()
-      if device.isWhiteBalanceModeSupported(.locked) && device.isLockingWhiteBalanceWithCustomDeviceGainsSupported() {
+      if device.isWhiteBalanceModeSupported(.locked) && device.isLockingWhiteBalanceWithCustomDeviceGainsSupported {
         if delegate.whiteBalanceTemperature > 0 {
           let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
             temperature: Float(delegate.whiteBalanceTemperature),
