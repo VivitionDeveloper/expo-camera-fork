@@ -176,11 +176,14 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       throw CameraSavingImageException("Photo Capture delegate unavailable")
     }
 
-    guard let imageData, var takenImage = UIImage(data: imageData) else {
+    guard let imageData else {
       throw CameraSavingImageException("Failed to process image data")
     }
 
-    if (options.cropToAspectRatio) {
+    var takenImage: UIImage?
+
+    if options.cropToAspectRatio {
+      takenImage = UIImage(data: imageData)
       let previewSize = if captureDelegate.deviceOrientation == .portrait {
         CGSize(width: captureDelegate.previewLayer.frame.size.height, height: captureDelegate.previewLayer.frame.size.width)
       } else {
@@ -200,8 +203,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
     else {
       NSLog("[Camera] Skipping cropping of image as per option.")
     }
-    let width = takenImage.size.width
-    let height = takenImage.size.height
+    
     var processedImageData: Data?
 
     var response = [String: Any]()
@@ -211,6 +213,12 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         throw CameraSavingImageException("Failed to process EXIF data")
       }
 
+      if takenImage == nil {
+        takenImage = UIImage(data: imageData)
+      }
+
+      let width = takenImage.size.width
+      let height = takenImage.size.height
       var updatedExif = ExpoCameraUtils.updateExif(
         metadata: exifDict,
         with: ["Orientation": ExpoCameraUtils.toExifOrientation(orientation: takenImage.imageOrientation)]
@@ -219,6 +227,8 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       updatedExif[kCGImagePropertyExifPixelYDimension as String] = width
       updatedExif[kCGImagePropertyExifPixelXDimension as String] = height
       response["exif"] = updatedExif
+      response["width"] = width
+      response["height"] = height
 
       var updatedMetadata = metadata
 
@@ -244,12 +254,17 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         from: takenImage,
         with: updatedMetadata,
         quality: Float(options.quality))
-    } else {
+    } 
+    else if takenImage != nil {
       if options.imageType == .png {
         processedImageData = takenImage.pngData()
       } else {
         processedImageData = takenImage.jpegData(compressionQuality: options.quality)
       }
+    }
+    else {
+      // No EXIF processing and no image modifications
+      processedImageData = imageData
     }
 
     guard let processedImageData else {
@@ -263,20 +278,18 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       throw CameraSavingImageException("Failed to create UIImage from processed data")
     }
 
-    let path = FileSystemUtilities.generatePathInCache(
-      captureDelegate.appContext,
-      in: "Camera",
-      extension: options.imageType.toExtension()
-    )
-
-    response["uri"] = ExpoCameraUtils.write(data: processedImageData, to: path)
-    response["width"] = width
-    response["height"] = height
-    response["format"] = options.imageType.rawValue
-
     if options.base64 {
       response["base64"] = processedImageData.base64EncodedString()
     }
+    else {
+      let path = FileSystemUtilities.generatePathInCache(
+        captureDelegate.appContext,
+        in: "Camera",
+        extension: options.imageType.toExtension()
+      )
+      response["uri"] = ExpoCameraUtils.write(data: processedImageData, to: path)
+    }
+    response["format"] = options.imageType.rawValue
 
     if options.fastMode {
       captureDelegate.onPictureSaved(["data": response, "id": options.id])
