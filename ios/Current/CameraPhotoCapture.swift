@@ -180,17 +180,19 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       throw CameraSavingImageException("Failed to process image data")
     }
 
-    var takenImage: UIImage?
+    var uiImage: UIImage?
 
-    if options.cropToAspectRatio {
-      takenImage = UIImage(data: imageData)
+    if options.cropToAspectRatio,
+      let takenImage = uiImage ?? UIImage(data: imageData) {
+
+      uiImage = takenImage
       let previewSize = if captureDelegate.deviceOrientation == .portrait {
         CGSize(width: captureDelegate.previewLayer.frame.size.height, height: captureDelegate.previewLayer.frame.size.width)
       } else {
         CGSize(width: captureDelegate.previewLayer.frame.size.width, height: captureDelegate.previewLayer.frame.size.height)
       }
 
-      guard let takenCgImage = takenImage.cgImage else {
+      guard let takenCgImage = takenImage?.cgImage else {
         throw CameraSavingImageException("Failed to get CGImage")
       }
 
@@ -208,15 +210,14 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
 
     var response = [String: Any]()
 
-    if options.exif {
+    if options.exif,
+      let takenImage = uiImage ?? UIImage(data: imageData)  {
+
       guard let exifDict = metadata[kCGImagePropertyExifDictionary as String] as? [String: Any] else {
         throw CameraSavingImageException("Failed to process EXIF data")
       }
 
-      if takenImage == nil {
-        takenImage = UIImage(data: imageData)
-      }
-
+      uiImage = takenImage
       let width = takenImage.size.width
       let height = takenImage.size.height
       var updatedExif = ExpoCameraUtils.updateExif(
@@ -255,11 +256,11 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         with: updatedMetadata,
         quality: Float(options.quality))
     } 
-    else if takenImage != nil {
+    else if uiImage != nil {
       if options.imageType == .png {
-        processedImageData = takenImage.pngData()
+        processedImageData = uiImage.pngData()
       } else {
-        processedImageData = takenImage.jpegData(compressionQuality: options.quality)
+        processedImageData = uiImage.jpegData(compressionQuality: options.quality)
       }
     }
     else {
