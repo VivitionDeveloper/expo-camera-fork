@@ -183,16 +183,15 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
     var uiImage: UIImage?
 
     if options.cropToAspectRatio,
-      let takenImage = uiImage ?? UIImage(data: imageData) {
+      var takenImage = uiImage ?? UIImage(data: imageData) {
 
-      uiImage = takenImage
       let previewSize = if captureDelegate.deviceOrientation == .portrait {
         CGSize(width: captureDelegate.previewLayer.frame.size.height, height: captureDelegate.previewLayer.frame.size.width)
       } else {
         CGSize(width: captureDelegate.previewLayer.frame.size.width, height: captureDelegate.previewLayer.frame.size.height)
       }
 
-      guard let takenCgImage = takenImage?.cgImage else {
+      guard let takenCgImage = takenImage.cgImage else {
         throw CameraSavingImageException("Failed to get CGImage")
       }
 
@@ -200,7 +199,7 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       let croppedSize = AVMakeRect(aspectRatio: previewSize, insideRect: cropRect)
       NSLog("[Camera] Cropping image from size: \(cropRect.size.width)x\(cropRect.size.height) to size: \(croppedSize.size.width)x\(croppedSize.size.height)")
 
-      takenImage = ExpoCameraUtils.crop(image: takenImage, to: croppedSize)
+      uiImage = ExpoCameraUtils.crop(image: takenImage, to: croppedSize)
     }
     else {
       NSLog("[Camera] Skipping cropping of image as per option.")
@@ -255,12 +254,12 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         from: takenImage,
         with: updatedMetadata,
         quality: Float(options.quality))
-    } 
-    else if uiImage != nil {
+    }
+    else if let takenImage = uiImage {
       if options.imageType == .png {
-        processedImageData = uiImage.pngData()
+        processedImageData = takenImage.pngData()
       } else {
-        processedImageData = uiImage.jpegData(compressionQuality: options.quality)
+        processedImageData = takenImage.jpegData(compressionQuality: options.quality)
       }
     }
     else {
