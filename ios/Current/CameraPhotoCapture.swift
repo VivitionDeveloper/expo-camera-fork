@@ -176,15 +176,11 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       throw CameraSavingImageException("Photo Capture delegate unavailable")
     }
 
-    guard let imageData else {
+    guard let imageData, var takenImage = UIImage(data: imageData) else {
       throw CameraSavingImageException("Failed to process image data")
     }
 
-    var uiImage: UIImage?
-
-    if options.cropToAspectRatio,
-      var takenImage = uiImage ?? UIImage(data: imageData) {
-
+    if (options.cropToAspectRatio) {
       let previewSize = if captureDelegate.deviceOrientation == .portrait {
         CGSize(width: captureDelegate.previewLayer.frame.size.height, height: captureDelegate.previewLayer.frame.size.width)
       } else {
@@ -199,26 +195,22 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       let croppedSize = AVMakeRect(aspectRatio: previewSize, insideRect: cropRect)
       NSLog("[Camera] Cropping image from size: \(cropRect.size.width)x\(cropRect.size.height) to size: \(croppedSize.size.width)x\(croppedSize.size.height)")
 
-      uiImage = ExpoCameraUtils.crop(image: takenImage, to: croppedSize)
+      takenImage = ExpoCameraUtils.crop(image: takenImage, to: croppedSize)
     }
     else {
       NSLog("[Camera] Skipping cropping of image as per option.")
     }
-    
+    let width = takenImage.size.width
+    let height = takenImage.size.height
     var processedImageData: Data?
 
     var response = [String: Any]()
 
-    if options.exif,
-      let takenImage = uiImage ?? UIImage(data: imageData)  {
-
+    if options.exif {
       guard let exifDict = metadata[kCGImagePropertyExifDictionary as String] as? [String: Any] else {
         throw CameraSavingImageException("Failed to process EXIF data")
       }
 
-      uiImage = takenImage
-      let width = takenImage.size.width
-      let height = takenImage.size.height
       var updatedExif = ExpoCameraUtils.updateExif(
         metadata: exifDict,
         with: ["Orientation": ExpoCameraUtils.toExifOrientation(orientation: takenImage.imageOrientation)]
@@ -227,8 +219,6 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       updatedExif[kCGImagePropertyExifPixelYDimension as String] = width
       updatedExif[kCGImagePropertyExifPixelXDimension as String] = height
       response["exif"] = updatedExif
-      response["width"] = width
-      response["height"] = height
 
       var updatedMetadata = metadata
 
@@ -254,17 +244,12 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
         from: takenImage,
         with: updatedMetadata,
         quality: Float(options.quality))
-    }
-    else if let takenImage = uiImage {
+    } else {
       if options.imageType == .png {
         processedImageData = takenImage.pngData()
       } else {
         processedImageData = takenImage.jpegData(compressionQuality: options.quality)
       }
-    }
-    else {
-      // No EXIF processing and no image modifications
-      processedImageData = imageData
     }
 
     guard let processedImageData else {
@@ -289,6 +274,8 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       )
       response["uri"] = ExpoCameraUtils.write(data: processedImageData, to: path)
     }
+    response["width"] = width
+    response["height"] = height
     response["format"] = options.imageType.rawValue
 
     if options.fastMode {
