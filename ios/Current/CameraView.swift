@@ -158,6 +158,12 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     }
   }
 
+  var whiteBalanceTint: Int = 0 {
+    didSet {
+      sessionManager.updateWhiteBalance()
+    }
+  }
+
   // MARK: - Events
 
   let onCameraReady = EventDispatcher()

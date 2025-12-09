@@ -15,6 +15,7 @@ protocol CameraSessionManagerDelegate: AnyObject {
   var autoFocus: AVCaptureDevice.FocusMode { get }
   var zoom: CGFloat { get }
   var whiteBalanceTemperature: Int { get }
+  var whiteBalanceTint: Int { get }
   var onMountError: EventDispatcher { get }
   var onCameraReady: EventDispatcher { get }
   var permissionsManager: EXPermissionsInterface? { get }
@@ -222,11 +223,11 @@ class CameraSessionManager: NSObject {
         if delegate.whiteBalanceTemperature > 0 {
           let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
             temperature: Float(delegate.whiteBalanceTemperature),
-            tint: 0.0)
+            tint: Float(delegate.whiteBalanceTint))
           var whiteBalanceGains = device.deviceWhiteBalanceGains(for: temperatureAndTint)
           whiteBalanceGains = self.normalizedGains(whiteBalanceGains, for: device)        
           device.setWhiteBalanceModeLocked(with: whiteBalanceGains, completionHandler: nil)
-          NSLog("[Camera] Set white balance to \(delegate.whiteBalanceTemperature)K, gains: \(whiteBalanceGains)")
+          NSLog("[Camera] Set white balance to \(delegate.whiteBalanceTemperature)K and \(delegate.whiteBalanceTint) tint, gains: \(whiteBalanceGains)")
         }
         else {
           device.whiteBalanceMode = .continuousAutoWhiteBalance

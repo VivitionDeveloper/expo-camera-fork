@@ -153,6 +153,16 @@ public final class CameraViewModule: Module, ScannerResultHandler {
         }
       }
 
+      Prop("whiteBalanceTint") { (view, whiteBalanceTint: Int?) in
+        if let whiteBalanceTint, view.whiteBalanceTint != whiteBalanceTint {
+          view.whiteBalanceTint = whiteBalanceTint
+          return
+        }
+        if whiteBalanceTint == nil && view.whiteBalanceTint != 0 {
+          view.whiteBalanceTint = 0
+        }
+      }
+
       Prop("mode") { (view, mode: CameraMode?) in
         if let mode, view.mode != mode {
           view.mode = mode
