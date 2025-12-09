@@ -339,8 +339,16 @@ export type CameraViewProps = ViewProps & {
      * Sets the desired white balance by specifying the color temperature in Kelvin.
      * A value of `0` lets the camera choose the best white balance automatically.
      * @default 0
+     * @platform ios
      */
     whiteBalanceTemperature?: number;
+    /**
+     * Sets the desired white balance tint by specifying the tint value.
+     * Only used when `whiteBalanceTemperature` is set to a value other than `0`.
+     * @default 0
+     * @platform ios
+     */
+    whiteBalanceTint?: number;
     /**
      * Used to select image or video output.
      * @default 'picture'
@@ -517,6 +525,7 @@ export type CameraNativeProps = {
     mute?: boolean;
     zoom?: number;
     whiteBalanceTemperature?: number;
+    whiteBalanceTint?: number;
     ratio?: CameraRatio;
     barcodeScannerSettings?: BarcodeSettings;
     barcodeScannerEnabled?: boolean;

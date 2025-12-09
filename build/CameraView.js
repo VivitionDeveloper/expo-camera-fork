@@ -124,6 +124,7 @@ export default class CameraView extends Component {
     static defaultProps = {
         zoom: 0,
         whiteBalanceTemperature: 0,
+        whiteBalanceTint: 0,
         facing: 'back',
         enableTorch: false,
         mode: 'picture',
