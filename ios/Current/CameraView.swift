@@ -164,6 +164,12 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     }
   }
 
+  var exposureCompensation: Double = 0 {
+    didSet {
+      sessionManager.updateExposureCompensation()
+    }
+  }
+
   // MARK: - Events
 
   let onCameraReady = EventDispatcher()

@@ -16,6 +16,7 @@ protocol CameraSessionManagerDelegate: AnyObject {
   var zoom: CGFloat { get }
   var whiteBalanceTemperature: Int { get }
   var whiteBalanceTint: Int { get }
+  var exposureCompensation: Double { get }
   var onMountError: EventDispatcher { get }
   var onCameraReady: EventDispatcher { get }
   var permissionsManager: EXPermissionsInterface? { get }
@@ -212,6 +213,26 @@ class CameraSessionManager: NSObject {
     device.unlockForConfiguration()
   }
 
+  func updateExposureCompensation() {
+    guard let device = captureDeviceInput?.device, let delegate else {
+      return
+    }
+
+    do {
+      try device.lockForConfiguration()
+      let minExposure = device.minExposureTargetBias
+      let maxExposure = device.maxExposureTargetBias
+      let desiredExposure = Float(delegate.exposureCompensation)
+      let clampedExposure = max(minExposure, min(desiredExposure, maxExposure))
+      device.setExposureTargetBias(clampedExposure) { time in
+        NSLog("[Camera] Set exposure compensation to \(clampedExposure) (requested: \(desiredExposure))")
+      }
+    } catch {
+      NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
+    }
+    device.unlockForConfiguration()
+  }
+
   func updateWhiteBalance() {
     guard let device = captureDeviceInput?.device, let delegate else {
       return
@@ -340,12 +361,11 @@ class CameraSessionManager: NSObject {
 
       // Auto Exposure on tapped point
       if #available(iOS 26.0, *) {
-        let width = 0.055;
-        let height = 0.055;
-        let rect = CGRect(x: max(min(devicePoint.x - (width / 2.0), 1.0 - width), 0.0),
-                          y: max(min(devicePoint.y - (height / 2.0), 1.0 - height), 0.0),
-                          width: width,
-                          height: height)
+        let size = device.minExposureRectOfInterestSize;
+        let rect = CGRect(x: max(min(devicePoint.x - (size.width / 2.0), 1.0 - size.width), 0.0),
+                          y: max(min(devicePoint.y - (size.height / 2.0), 1.0 - size.height), 0.0),
+                          width: size.width,
+                          height: size.height)
 
         if device.isExposureRectOfInterestSupported,
           device.isExposureModeSupported(.continuousAutoExposure) {

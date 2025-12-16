@@ -393,6 +393,15 @@ export type CameraViewProps = ViewProps & {
    */
   whiteBalanceTint?: number;
   /**
+   * Sets the exposure compensation value.
+   * A value of `0` means no exposure compensation.
+   * Positive values increase the exposure, while negative values decrease it.
+   * The range of valid values depends on the device capabilities, but is typically between `-3` and `+3`.
+   * @default 0
+   * @platform ios
+   */
+  exposureCompensation?: number;
+  /**
    * Used to select image or video output.
    * @default 'picture'
    */
@@ -567,6 +576,7 @@ export type CameraNativeProps = {
   zoom?: number;
   whiteBalanceTemperature?: number;
   whiteBalanceTint?: number;
+  exposureCompensation?: number;
   ratio?: CameraRatio;
   barcodeScannerSettings?: BarcodeSettings;
   barcodeScannerEnabled?: boolean;

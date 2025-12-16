@@ -163,6 +163,16 @@ public final class CameraViewModule: Module, ScannerResultHandler {
         }
       }
 
+      Prop("exposureCompensation") { (view, exposureCompensation: Double?) in
+        if let exposureCompensation, fabs(view.exposureCompensation - exposureCompensation) > Double.ulpOfOne {
+          view.exposureCompensation = exposureCompensation
+          return
+        }
+        if exposureCompensation == nil && view.exposureCompensation != 0 {
+          view.exposureCompensation = 0
+        }
+      }
+
       Prop("mode") { (view, mode: CameraMode?) in
         if let mode, view.mode != mode {
           view.mode = mode
