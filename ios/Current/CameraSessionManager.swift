@@ -338,24 +338,27 @@ class CameraSessionManager: NSObject {
     do {
       try device.lockForConfiguration()
 
-      let width = 0.055;
-      let height = 0.055;
-      let rect = CGRect(x: max(min(devicePoint.x - (width / 2.0), 1.0 - width), 0.0),
-                        y: max(min(devicePoint.y - (height / 2.0), 1.0 - height), 0.0),
-                        width: width,
-                        height: height)
       // Auto Exposure on tapped point
-      if device.isExposureRectOfInterestSupported,
-         device.isExposureModeSupported(.continuousAutoExposure) {
-        device.exposureRectOfInterest = rect
-        device.exposureMode = .continuousAutoExposure
-      }
+      if #available(iOS 26.0, *) {
+        let width = 0.055;
+        let height = 0.055;
+        let rect = CGRect(x: max(min(devicePoint.x - (width / 2.0), 1.0 - width), 0.0),
+                          y: max(min(devicePoint.y - (height / 2.0), 1.0 - height), 0.0),
+                          width: width,
+                          height: height)
 
-      // Auto Focus on tapped point
-      if device.isFocusRectOfInterestSupported,
-         device.isFocusModeSupported(.continuousAutoFocus) {
-        device.focusRectOfInterest = rect
-        device.focusMode = .continuousAutoFocus
+        if device.isExposureRectOfInterestSupported,
+          device.isExposureModeSupported(.continuousAutoExposure) {
+          device.exposureRectOfInterest = rect
+          device.exposureMode = .continuousAutoExposure
+        }
+
+        // Auto Focus on tapped point
+        if device.isFocusRectOfInterestSupported,
+          device.isFocusModeSupported(.continuousAutoFocus) {
+          device.focusRectOfInterest = rect
+          device.focusMode = .continuousAutoFocus
+        }
       }
 
       // Not for now:
