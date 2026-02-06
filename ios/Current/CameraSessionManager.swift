@@ -238,9 +238,7 @@ class CameraSessionManager: NSObject {
     guard let device = captureDeviceInput?.device, let delegate else {
       return
     }
-
-    NSLog("[Camera] updateWhiteBalance called with temperature: \(String(describing: delegate.whiteBalanceTemperature)), tint: \(String(describing: delegate.whiteBalanceTint))")
-
+    
     do {
       try device.lockForConfiguration()
       if device.isWhiteBalanceModeSupported(.locked) && device.isLockingWhiteBalanceWithCustomDeviceGainsSupported {
