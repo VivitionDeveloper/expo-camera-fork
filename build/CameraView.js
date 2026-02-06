@@ -125,6 +125,8 @@ export default class CameraView extends Component {
         zoom: 0,
         whiteBalanceTemperature: 0,
         whiteBalanceTint: 0,
+        exposureCompensation: 0,
+        maxExposureDuration: undefined,
         facing: 'back',
         enableTorch: false,
         mode: 'picture',
