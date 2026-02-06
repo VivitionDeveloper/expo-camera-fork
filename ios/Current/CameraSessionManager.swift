@@ -60,17 +60,21 @@ class CameraSessionManager: NSObject {
     if session.canSetSessionPreset(preset) {
       if session.sessionPreset != preset {
         session.beginConfiguration()
-        defer { session.commitConfiguration() }
         session.sessionPreset = preset
+        session.commitConfiguration()
         NSLog("[Camera] Session preset updated to \(preset.rawValue)")
+        updateMaxExposureDuration()
+        updateWhiteBalance()
       }
     } else {
       // The selected preset cannot be used on the current device so we fall back to the highest available.
       if session.sessionPreset != .high {
         session.beginConfiguration()
-        defer { session.commitConfiguration() }
         session.sessionPreset = .high
+        session.commitConfiguration()
         NSLog("[Camera] Session preset updated to \(session.sessionPreset.rawValue)")
+        updateMaxExposureDuration()
+        updateWhiteBalance()
       }
     }
 #endif
