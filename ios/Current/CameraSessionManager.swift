@@ -274,10 +274,6 @@ class CameraSessionManager: NSObject {
       try device.lockForConfiguration()
       
       if let durationArray = delegate.maxExposureDuration, durationArray.count == 2 {
-        // make sure auto exposure mode is enabled
-        if device.isExposureModeSupported(.continuousAutoExposure) {
-            device.exposureMode = .continuousAutoExposure
-        }
         let numerator = Int64(durationArray[0])
         let denominator = Int32(durationArray[1])
         let desiredDuration = CMTime(value: numerator, timescale: denominator)
@@ -302,10 +298,15 @@ class CameraSessionManager: NSObject {
         device.activeMaxExposureDuration = CMTime.invalid
         NSLog("[Camera] Reset max exposure duration to automatic (CMTime.invalid)")
       }
+      
+      device.unlockForConfiguration()
     } catch {
       NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
+      device.unlockForConfiguration()
     }
-    device.unlockForConfiguration()
+    
+    // Reapply white balance after changing exposure settings
+    updateWhiteBalance()
   }
 
   func getAvailableLenses() -> [String] {

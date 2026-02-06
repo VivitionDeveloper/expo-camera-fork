@@ -148,31 +148,41 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
 
   var zoom: CGFloat = 0 {
     didSet {
-      sessionManager.updateZoom()
+      sessionQueue.async {
+        self.sessionManager.updateZoom()
+      }
     }
   }
 
   var whiteBalanceTemperature: Int = 0 {
     didSet {
-      sessionManager.updateWhiteBalance()
+      sessionQueue.async {
+        self.sessionManager.updateWhiteBalance()
+      }
     }
   }
 
   var whiteBalanceTint: Int = 0 {
     didSet {
-      sessionManager.updateWhiteBalance()
+      sessionQueue.async {
+        self.sessionManager.updateWhiteBalance()
+      }
     }
   }
 
   var exposureCompensation: Double = 0 {
     didSet {
-      sessionManager.updateExposureCompensation()
+      sessionQueue.async {
+        self.sessionManager.updateExposureCompensation()
+      }
     }
   }
 
   var maxExposureDuration: [Int]? {
     didSet {
-      sessionManager.updateMaxExposureDuration()
+      sessionQueue.async {
+        self.sessionManager.updateMaxExposureDuration()
+      }
     }
   }
 
