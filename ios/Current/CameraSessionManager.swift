@@ -17,6 +17,7 @@ protocol CameraSessionManagerDelegate: AnyObject {
   var whiteBalanceTemperature: Int { get }
   var whiteBalanceTint: Int { get }
   var exposureCompensation: Double { get }
+  var maxExposureDuration: [Int]? { get }
   var onMountError: EventDispatcher { get }
   var onCameraReady: EventDispatcher { get }
   var permissionsManager: EXPermissionsInterface? { get }
@@ -257,6 +258,49 @@ class CameraSessionManager: NSObject {
       }
       else {
         NSLog("[Camera] White balance locked mode or custom device gains are not supported on this device.")
+      }
+    } catch {
+      NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
+    }
+    device.unlockForConfiguration()
+  }
+
+  func updateMaxExposureDuration() {
+    guard let device = captureDeviceInput?.device, let delegate else {
+      return
+    }
+
+    do {
+      try device.lockForConfiguration()
+      
+      if let durationArray = delegate.maxExposureDuration, durationArray.count == 2 {
+        // make sure auto exposure mode is enabled
+        if device.isExposureModeSupported(.continuousAutoExposure) {
+            device.exposureMode = .continuousAutoExposure
+        }
+        let numerator = Int64(durationArray[0])
+        let denominator = Int32(durationArray[1])
+        let desiredDuration = CMTime(value: numerator, timescale: denominator)
+        
+        let minDuration = device.activeFormat.minExposureDuration
+        let maxDuration = device.activeFormat.maxExposureDuration
+        
+        // Clamp the desired duration between min and max
+        let clampedDuration: CMTime
+        if CMTimeCompare(desiredDuration, minDuration) < 0 {
+          clampedDuration = minDuration
+        } else if CMTimeCompare(desiredDuration, maxDuration) > 0 {
+          clampedDuration = maxDuration
+        } else {
+          clampedDuration = desiredDuration
+        }
+        
+        device.activeMaxExposureDuration = clampedDuration
+        NSLog("[Camera] Set max exposure duration to \(clampedDuration.value)/\(clampedDuration.timescale) (requested: \(numerator)/\(denominator))")
+      } else {
+        // Reset to invalid (automatic)
+        device.activeMaxExposureDuration = CMTime.invalid
+        NSLog("[Camera] Reset max exposure duration to automatic (CMTime.invalid)")
       }
     } catch {
       NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")

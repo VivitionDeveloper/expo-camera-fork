@@ -170,6 +170,12 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     }
   }
 
+  var maxExposureDuration: [Int]? {
+    didSet {
+      sessionManager.updateMaxExposureDuration()
+    }
+  }
+
   // MARK: - Events
 
   let onCameraReady = EventDispatcher()

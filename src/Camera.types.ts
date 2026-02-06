@@ -402,6 +402,15 @@ export type CameraViewProps = ViewProps & {
    */
   exposureCompensation?: number;
   /**
+   * Sets the maximum exposure duration as a CMTime value [numerator, denominator].
+   * The value will be clamped between the active format's minExposureDuration and maxExposureDuration.
+   * If not specified or set to `null`/`undefined`, the exposure duration will be reset to automatic.
+   * @example [1, 30] for 1/30 second exposure
+   * @default undefined
+   * @platform ios
+   */
+  maxExposureDuration?: [number, number] | null;
+  /**
    * Used to select image or video output.
    * @default 'picture'
    */
@@ -577,6 +586,7 @@ export type CameraNativeProps = {
   whiteBalanceTemperature?: number;
   whiteBalanceTint?: number;
   exposureCompensation?: number;
+  maxExposureDuration?: [number, number] | null;
   ratio?: CameraRatio;
   barcodeScannerSettings?: BarcodeSettings;
   barcodeScannerEnabled?: boolean;
