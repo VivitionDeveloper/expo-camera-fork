@@ -173,6 +173,16 @@ public final class CameraViewModule: Module, ScannerResultHandler {
         }
       }
 
+      Prop("maxExposureDuration") { (view, maxExposureDuration: [Int]?) in
+        if let maxExposureDuration, view.maxExposureDuration != maxExposureDuration {
+          view.maxExposureDuration = maxExposureDuration
+          return
+        }
+        if maxExposureDuration == nil && view.maxExposureDuration != nil {
+          view.maxExposureDuration = nil
+        }
+      }
+
       Prop("mode") { (view, mode: CameraMode?) in
         if let mode, view.mode != mode {
           view.mode = mode
