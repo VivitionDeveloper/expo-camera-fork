@@ -238,7 +238,7 @@ class CameraSessionManager: NSObject {
     guard let device = captureDeviceInput?.device, let delegate else {
       return
     }
-    
+
     do {
       try device.lockForConfiguration()
       if device.isWhiteBalanceModeSupported(.locked) && device.isLockingWhiteBalanceWithCustomDeviceGainsSupported {
@@ -267,11 +267,8 @@ class CameraSessionManager: NSObject {
 
   func updateMaxExposureDuration() {
     guard let device = captureDeviceInput?.device, let delegate else {
-      NSLog("[Camera] updateMaxExposureDuration called but device or delegate is nil")
       return
     }
-
-    NSLog("[Camera] updateMaxExposureDuration called with value: \(String(describing: delegate.maxExposureDuration))")
 
     do {
       try device.lockForConfiguration()
