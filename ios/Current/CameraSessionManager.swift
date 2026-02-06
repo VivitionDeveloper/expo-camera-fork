@@ -241,24 +241,7 @@ class CameraSessionManager: NSObject {
 
     do {
       try device.lockForConfiguration()
-      if device.isWhiteBalanceModeSupported(.locked) && device.isLockingWhiteBalanceWithCustomDeviceGainsSupported {
-        if delegate.whiteBalanceTemperature > 0 {
-          let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
-            temperature: Float(delegate.whiteBalanceTemperature),
-            tint: Float(delegate.whiteBalanceTint))
-          var whiteBalanceGains = device.deviceWhiteBalanceGains(for: temperatureAndTint)
-          whiteBalanceGains = self.normalizedGains(whiteBalanceGains, for: device)        
-          device.setWhiteBalanceModeLocked(with: whiteBalanceGains, completionHandler: nil)
-          NSLog("[Camera] Set white balance to \(delegate.whiteBalanceTemperature)K and \(delegate.whiteBalanceTint) tint, gains: \(whiteBalanceGains)")
-        }
-        else {
-          device.whiteBalanceMode = .continuousAutoWhiteBalance
-          NSLog("[Camera] Set white balance to continuous mode")
-        }
-      }
-      else {
-        NSLog("[Camera] White balance locked mode or custom device gains are not supported on this device.")
-      }
+      applyWhiteBalanceLocked(device, delegate: delegate)
     } catch {
       NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
     }
@@ -272,41 +255,72 @@ class CameraSessionManager: NSObject {
 
     do {
       try device.lockForConfiguration()
-      
-      if let durationArray = delegate.maxExposureDuration, durationArray.count == 2 {
-        let numerator = Int64(durationArray[0])
-        let denominator = Int32(durationArray[1])
-        let desiredDuration = CMTime(value: numerator, timescale: denominator)
-        
-        let minDuration = device.activeFormat.minExposureDuration
-        let maxDuration = device.activeFormat.maxExposureDuration
-        
-        // Clamp the desired duration between min and max
-        let clampedDuration: CMTime
-        if CMTimeCompare(desiredDuration, minDuration) < 0 {
-          clampedDuration = minDuration
-        } else if CMTimeCompare(desiredDuration, maxDuration) > 0 {
-          clampedDuration = maxDuration
-        } else {
-          clampedDuration = desiredDuration
-        }
-        
-        device.activeMaxExposureDuration = clampedDuration
-        NSLog("[Camera] Set max exposure duration to \(clampedDuration.value)/\(clampedDuration.timescale) (requested: \(numerator)/\(denominator))")
-      } else {
-        // Reset to invalid (automatic)
-        device.activeMaxExposureDuration = CMTime.invalid
-        NSLog("[Camera] Reset max exposure duration to automatic (CMTime.invalid)")
-      }
-      
+      applyMaxExposureDurationLocked(device, delegate: delegate)
       device.unlockForConfiguration()
     } catch {
       NSLog("[Camera] Locking for config failed \(#function): \(error.localizedDescription)")
       device.unlockForConfiguration()
     }
-    
-    // Reapply white balance after changing exposure settings
-    updateWhiteBalance()
+  }
+
+  func applyCaptureOverridesForPhotoCapture() {
+    guard let device = captureDeviceInput?.device, let delegate else {
+      return
+    }
+
+    do {
+      try device.lockForConfiguration()
+      applyMaxExposureDurationLocked(device, delegate: delegate)
+      applyWhiteBalanceLocked(device, delegate: delegate)
+    } catch {
+      NSLog("[Camera] applyCaptureOverridesForPhotoCapture failed: \(error.localizedDescription)")
+    }
+    device.unlockForConfiguration()
+  }
+
+  private func applyMaxExposureDurationLocked(_ device: AVCaptureDevice, delegate: CameraSessionManagerDelegate) {
+    if let durationArray = delegate.maxExposureDuration, durationArray.count == 2 {
+      let numerator = Int64(durationArray[0])
+      let denominator = Int32(durationArray[1])
+      let desiredDuration = CMTime(value: numerator, timescale: denominator)
+
+      let minDuration = device.activeFormat.minExposureDuration
+      let maxDuration = device.activeFormat.maxExposureDuration
+
+      let clampedDuration: CMTime
+      if CMTimeCompare(desiredDuration, minDuration) < 0 {
+        clampedDuration = minDuration
+      } else if CMTimeCompare(desiredDuration, maxDuration) > 0 {
+        clampedDuration = maxDuration
+      } else {
+        clampedDuration = desiredDuration
+      }
+
+      device.activeMaxExposureDuration = clampedDuration
+      NSLog("[Camera] Set max exposure duration to \(clampedDuration.value)/\(clampedDuration.timescale) (requested: \(numerator)/\(denominator))")
+    } else {
+      device.activeMaxExposureDuration = CMTime.invalid
+      NSLog("[Camera] Reset max exposure duration to automatic (CMTime.invalid)")
+    }
+  }
+
+  private func applyWhiteBalanceLocked(_ device: AVCaptureDevice, delegate: CameraSessionManagerDelegate) {
+    if device.isWhiteBalanceModeSupported(.locked) && device.isLockingWhiteBalanceWithCustomDeviceGainsSupported {
+      if delegate.whiteBalanceTemperature > 0 {
+        let temperatureAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
+          temperature: Float(delegate.whiteBalanceTemperature),
+          tint: Float(delegate.whiteBalanceTint))
+        var whiteBalanceGains = device.deviceWhiteBalanceGains(for: temperatureAndTint)
+        whiteBalanceGains = self.normalizedGains(whiteBalanceGains, for: device)
+        device.setWhiteBalanceModeLocked(with: whiteBalanceGains, completionHandler: nil)
+        NSLog("[Camera] Set white balance to \(delegate.whiteBalanceTemperature)K and \(delegate.whiteBalanceTint) tint, gains: \(whiteBalanceGains)")
+      } else {
+        device.whiteBalanceMode = .continuousAutoWhiteBalance
+        NSLog("[Camera] Set white balance to continuous mode")
+      }
+    } else {
+      NSLog("[Camera] White balance locked mode or custom device gains are not supported on this device.")
+    }
   }
 
   func getAvailableLenses() -> [String] {

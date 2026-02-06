@@ -328,6 +328,10 @@ public class CameraView: ExpoView, EXAppLifecycleListener, EXCameraInterface, Ca
     }
   }
 
+  public func applyCaptureOverridesForPhotoCapture() {
+    sessionManager.applyCaptureOverridesForPhotoCapture()
+  }
+
   func getAvailableLenses() -> [String] {
     return sessionManager.getAvailableLenses()
   }

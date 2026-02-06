@@ -15,6 +15,7 @@ protocol CameraPhotoCaptureDelegate: AnyObject {
   var onPictureSaved: EventDispatcher { get }
 
   func logPhotoOutput(_ message: String, _ output: AVCapturePhotoOutput?)
+  func applyCaptureOverridesForPhotoCapture()
 }
 
 class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
@@ -55,6 +56,11 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
   func takePicture(options: TakePictureOptions, photoOutput: AVCapturePhotoOutput) async throws -> Any {
     guard photoCapturedContinuation == nil else {
       throw CameraNotReadyException()
+    }
+
+    if let device = captureDelegate?.currentDevice {
+      captureDelegate?.applyCaptureOverridesForPhotoCapture()
+      await waitForDeviceToSettle(device)
     }
 
     captureDelegate?.logPhotoOutput("TakePicture start", photoOutput)
@@ -128,6 +134,15 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
       photoOutput.capturePhoto(with: photoSettings, delegate: self)
     }
   }
+
+
+  private func waitForDeviceToSettle(_ device: AVCaptureDevice) async {
+    let timeout = DispatchTime.now() + .milliseconds(250)
+    while (device.isAdjustingExposure || device.isAdjustingWhiteBalance) && DispatchTime.now() < timeout {
+      try? await Task.sleep(nanoseconds: 20_000_000)
+    }
+  }
+
 
   func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
     if photoCaptureOptions?.shutterSound == false {
