@@ -472,6 +472,7 @@ class CameraSessionManager: NSObject {
         NSLog("[Camera] Added device input: \(device.localizedName)")
         updateZoom()
         updateWhiteBalance()
+        updateMaxExposureDuration()
       }
     } catch {
       delegate.onMountError(["message": "Camera could not be started - \(error.localizedDescription)"])
