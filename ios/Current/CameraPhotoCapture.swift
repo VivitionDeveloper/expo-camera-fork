@@ -14,6 +14,7 @@ protocol CameraPhotoCaptureDelegate: AnyObject {
   var flashMode: FlashMode { get }
   var onPictureSaved: EventDispatcher { get }
 
+  func pausePreview()
   func logPhotoOutput(_ message: String, _ output: AVCapturePhotoOutput?)
   func applyCaptureOverridesForPhotoCapture()
 }
@@ -145,10 +146,15 @@ class CameraPhotoCapture: NSObject, AVCapturePhotoCaptureDelegate {
 
 
   func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+    // Freeze the preview at the exact capture moment; JS can resume via resumePreview().
+    DispatchQueue.main.async { [weak self] in
+      self?.captureDelegate?.pausePreview()
+    }
+
     if photoCaptureOptions?.shutterSound == false {
       AudioServicesDisposeSystemSoundID(1108)
     }
-    NSLog("[Camera] Captured photo with size: %dx%d",
+    NSLog("[Camera] Will capture photo with size: %dx%d",
           resolvedSettings.photoDimensions.width,
           resolvedSettings.photoDimensions.height)
   }
